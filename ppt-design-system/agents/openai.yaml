@@ -1,0 +1,3 @@
+interface:
+  display_name: "PPT-design-system"
+  short_description: "Extract and reuse presentation design systems"

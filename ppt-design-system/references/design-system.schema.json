@@ -1,0 +1,158 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object", "additionalProperties": false,
+  "required": ["version", "source", "primary_family", "families", "evidence", "rules", "tokens", "token_rules", "patterns", "motifs"],
+  "properties": {
+    "version": {"const": 1},
+    "source": {
+      "type": "object", "additionalProperties": false,
+      "required": ["kind", "sha256", "pages"],
+      "properties": {
+        "kind": {"enum": ["pptx", "pdf", "image", "web-snapshot"]},
+        "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "pages": {"type": "integer", "minimum": 1}
+      }
+    },
+    "primary_family": {"$ref": "#/$defs/id"},
+    "families": {
+      "type": "object", "minProperties": 1, "propertyNames": {"$ref": "#/$defs/id"},
+      "additionalProperties": {
+        "type": "object", "additionalProperties": false, "required": ["scope", "pages", "reason"],
+        "properties": {
+          "scope": {"enum": ["primary", "support", "excluded"]},
+          "pages": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "integer", "minimum": 1}},
+          "reason": {"$ref": "#/$defs/note"},
+          "backdrop": {
+            "type": "object", "additionalProperties": false, "required": ["file", "sha256", "evidence"],
+            "properties": {
+              "file": {"type": "string", "minLength": 1, "maxLength": 240},
+              "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+              "evidence": {"$ref": "#/$defs/id"}
+            }
+          }
+        }
+      }
+    },
+    "evidence": {
+      "type": "object", "minProperties": 1, "propertyNames": {"$ref": "#/$defs/id"},
+      "additionalProperties": {
+        "type": "object", "additionalProperties": false, "required": ["page", "region", "finding"],
+        "properties": {
+          "page": {"type": "integer", "minimum": 1},
+          "region": {"$ref": "#/$defs/box"},
+          "objects": {"type": "array", "uniqueItems": true, "items": {"type": "integer", "minimum": 1}},
+          "catalog_refs": {"$ref": "#/$defs/ids"},
+          "finding": {"$ref": "#/$defs/note"}
+        }
+      }
+    },
+    "rules": {
+      "type": "object", "minProperties": 1, "propertyNames": {"$ref": "#/$defs/id"},
+      "additionalProperties": {
+        "type": "object", "additionalProperties": false, "required": ["kind", "policy", "statement", "evidence"],
+        "properties": {
+          "kind": {"enum": ["measured", "observed", "inferred", "extended"]},
+          "policy": {"enum": ["locked", "variant"]},
+          "statement": {"$ref": "#/$defs/note"},
+          "evidence": {"$ref": "#/$defs/ids"}
+        }
+      }
+    },
+    "tokens": {
+      "type": "object", "additionalProperties": false, "required": ["colors", "type", "radii", "strokes"],
+      "properties": {
+        "colors": {"type": "object", "minProperties": 2, "propertyNames": {"$ref": "#/$defs/id"}, "additionalProperties": {"type": "string", "pattern": "^#[0-9A-Fa-f]{6}$"}},
+        "type": {
+          "type": "object", "minProperties": 1, "propertyNames": {"$ref": "#/$defs/id"},
+          "additionalProperties": {
+            "type": "object", "additionalProperties": false, "required": ["font", "size", "weight", "leading"],
+            "properties": {
+              "font": {"type": "string", "pattern": "^[a-zA-Z0-9 ,_-]+$", "maxLength": 150},
+              "size": {"type": "number", "minimum": 1, "maximum": 18},
+              "weight": {"enum": [400, 500, 600, 700]},
+              "leading": {"type": "number", "minimum": 1, "maximum": 2}
+            }
+          }
+        },
+        "radii": {"type": "object", "propertyNames": {"$ref": "#/$defs/id"}, "additionalProperties": {"type": "number", "minimum": 0, "maximum": 20}},
+        "strokes": {"type": "object", "propertyNames": {"$ref": "#/$defs/id"}, "additionalProperties": {"type": "number", "exclusiveMinimum": 0, "maximum": 15}}
+      }
+    },
+    "token_rules": {
+      "type": "object",
+      "propertyNames": {"pattern": "^(colors|type|radii|strokes)\\.[a-z][a-z0-9-]{0,49}$"},
+      "additionalProperties": {"$ref": "#/$defs/id"}
+    },
+    "fixed_assets": {
+      "type": "object", "propertyNames": {"$ref": "#/$defs/id"},
+      "additionalProperties": {
+        "type": "object", "additionalProperties": false, "required": ["file", "sha256", "evidence"],
+        "properties": {
+          "file": {"type": "string", "minLength": 1, "maxLength": 240},
+          "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+          "evidence": {"$ref": "#/$defs/id"}
+        }
+      }
+    },
+    "patterns": {
+      "type": "object", "minProperties": 1, "propertyNames": {"$ref": "#/$defs/id"},
+      "additionalProperties": {
+        "type": "object", "additionalProperties": false,
+        "required": ["family", "role", "reason", "rules", "background", "layers"],
+        "properties": {
+          "family": {"$ref": "#/$defs/id"}, "role": {"$ref": "#/$defs/id"},
+          "reason": {"$ref": "#/$defs/note"}, "rules": {"$ref": "#/$defs/ids"},
+          "background": {"$ref": "#/$defs/id"}, "layers": {"$ref": "#/$defs/layers"}
+        }
+      }
+    },
+    "sequences": {
+      "type": "object", "propertyNames": {"$ref": "#/$defs/id"},
+      "additionalProperties": {
+        "type": "array", "minItems": 2, "maxItems": 120,
+        "items": {
+          "type": "object", "additionalProperties": false, "required": ["patterns", "focus", "density", "weight"],
+          "properties": {
+            "patterns": {"$ref": "#/$defs/ids"}, "focus": {"$ref": "#/$defs/id"},
+            "density": {"enum": ["low", "medium", "high"]}, "weight": {"enum": ["low", "medium", "high"]}
+          }
+        }
+      }
+    },
+    "motifs": {
+      "type": "object", "propertyNames": {"$ref": "#/$defs/id"},
+      "additionalProperties": {"$ref": "#/$defs/layers"}
+    }
+  },
+  "$defs": {
+    "id": {"type": "string", "pattern": "^[a-z][a-z0-9-]{0,49}$"},
+    "ids": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"$ref": "#/$defs/id"}},
+    "note": {"type": "string", "minLength": 1, "maxLength": 600},
+    "box": {"type": "array", "items": {"type": "number", "minimum": 0, "maximum": 100}, "minItems": 4, "maxItems": 4},
+    "point": {"type": "array", "items": {"type": "number", "minimum": 0, "maximum": 100}, "minItems": 2, "maxItems": 2},
+    "layers": {
+      "type": "array", "minItems": 1, "maxItems": 100,
+      "items": {
+        "type": "object", "additionalProperties": false, "required": ["kind", "id"],
+        "properties": {
+          "id": {"$ref": "#/$defs/id"},
+          "kind": {"enum": ["box", "text", "image", "line", "curve", "motif"]},
+          "box": {"$ref": "#/$defs/box"},
+          "rotation": {"type": "number", "minimum": -45, "maximum": 45},
+          "slot": {"$ref": "#/$defs/id"}, "value": {"$ref": "#/$defs/note"},
+          "underline_slot": {"$ref": "#/$defs/id"},
+          "asset": {"$ref": "#/$defs/id"},
+          "fill": {"$ref": "#/$defs/id"}, "ink": {"$ref": "#/$defs/id"}, "type": {"$ref": "#/$defs/id"},
+          "radius": {"$ref": "#/$defs/id"}, "stroke": {"$ref": "#/$defs/id"}, "weight": {"$ref": "#/$defs/id"},
+          "align": {"enum": ["left", "center", "right"]},
+          "points": {"type": "array", "minItems": 2, "maxItems": 30, "items": {"$ref": "#/$defs/point"}},
+          "arrow": {"type": "boolean"},
+          "fit": {"enum": ["cover", "contain"]},
+          "position": {"$ref": "#/$defs/point"},
+          "motif": {"$ref": "#/$defs/id"},
+          "paint": {"type": "object", "propertyNames": {"$ref": "#/$defs/id"}, "additionalProperties": {"$ref": "#/$defs/id"}}
+        }
+      }
+    }
+  }
+}
