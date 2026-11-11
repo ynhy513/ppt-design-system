@@ -175,6 +175,8 @@ def check_source(system, source):
     require(digest(source) == system["source"]["sha256"], "Source SHA-256 does not match")
     if kind == "pptx":
         from pptx_source import load_source, source_shape
+        from style_catalog import embedded_images
+
         deck, _ = load_source(source)
         count = len(deck.slides)
         for item in system["evidence"].values():
@@ -183,7 +185,8 @@ def check_source(system, source):
         for key, asset in system.get("fixed_assets", {}).items():
             ref = system["evidence"][asset["evidence"]]
             obj = source_shape(deck, ref["page"], ref["objects"][0])
-            require(obj.shape_type.name == "PICTURE" and sha256(obj.image.blob).hexdigest() == asset["sha256"],
+            expected = asset.get("source_sha256", asset["sha256"])
+            require(any(sha256(part.blob).hexdigest() == expected for _, part, _ in embedded_images(obj)),
                     f"Fixed image does not match its source object: {key}")
     elif kind == "pdf":
         import pdfplumber

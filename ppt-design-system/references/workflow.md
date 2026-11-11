@@ -21,3 +21,19 @@ python ppt-design-system/scripts/style_catalog.py reference.pptx --out element-c
 ```
 
 `assets-manifest.json` 记录源文件指纹、页码、对象、包内地址、裁切和素材指纹。导出保留内嵌文件原始字节，包括透明 PNG、SVG 及其可用的位图备份。用清单把获选素材的文件和使用条件登记到设计包。HTML 复用使用渲染器支持的 PNG、JPEG 或 WebP。原生绘图、整组效果和只有外链的对象可能没有独立媒体。遇到 `no-embedded-image` 时，记录对应对象并按可见结果隔离渲染或重建。
+
+## 设计包交付校验
+
+将源设计包整理为 `STYLE.md`、`design-system.json`、`element-catalog.json`、`style-grammar.json` 和 `assets/`。在 `assets/assets-manifest.json` 记录与设计系统一致的 `source_sha256`。纯图层或纯矢量规则的包也保留清单，可将 `objects` 写为空数组。文稿、分镜、编译报告、换稿和成品 HTML 放在独立的生产目录。
+
+- 原件放进 `assets/`，保留导出清单中的原始 SHA-256。文件名可改，清单路径也要同步。仅有清单记录时，需要回源重新导出。
+- 转格式、裁切或合成的渲染件同样放进 `assets/`。在清单的 `derivatives` 中登记 `file`、衍生件 `sha256`、源对象 ID 数组 `sources` 和 `treatment`。如果源材料只能按页定位，可用 `evidence` 数组指向设计系统的证据 ID。PPTX 衍生件引用到可独立导出的图片对象时，清单要登记其原件并一并随包。
+- 固定素材使用衍生图时，`fixed_assets` 的 `file` 和 `sha256` 对应渲染件，并填 `source_sha256` 指向证据对象原图。渲染器分别核对原件与渲染件。固定素材直接使用原图时保留现有字段即可。
+- 复用新稿的产品图等内容素材随生产目录交付，通过文稿媒体槽引用。
+
+```bash
+python ppt-design-system/scripts/package_design.py ./design-pack --out ./design-pack.zip
+python ppt-design-system/scripts/package_design.py ./design-pack.zip
+```
+
+命令检查目录、语法、原件和衍生件的文件指纹及来源链接。通过后生成以 `design-pack/` 为唯一根目录的 ZIP。缺文件、来源无法对应或混入生产文件时返回具体错误。用原 PPTX 校验时另在重放命令传入 `--source`。
