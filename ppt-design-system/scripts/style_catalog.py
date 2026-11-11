@@ -21,9 +21,23 @@ def paint(node):
                          for part in node.iterdescendants()]}
 
 
-def catalog(source):
+def embedded_images(shape):
+    relation_ids = shape._element.xpath(
+        "./p:blipFill//a:blip/@r:embed | ./p:spPr/a:blipFill//a:blip/@r:embed | "
+        "./p:blipFill//*[local-name()='svgBlip']/@r:embed | "
+        "./p:spPr/a:blipFill//*[local-name()='svgBlip']/@r:embed"
+    )
+    crops = shape._element.xpath("./p:blipFill/a:srcRect | ./p:spPr/a:blipFill/a:srcRect")
+    crop = dict(crops[0].attrib) if crops else {}
+    for relation_id in dict.fromkeys(relation_ids):
+        relation = shape.part.rels.get(relation_id)
+        if relation and not relation.is_external and relation.reltype.endswith(("/image", "/hdphoto")):
+            yield relation_id, relation.target_part, crop
+
+
+def catalog(source, *, asset_objects=None, assets_out=None):
     deck, fingerprint = load_source(source)
-    tokens, objects, surfaces = {}, {}, {}
+    tokens, objects, surfaces, selected = {}, {}, {}, {}
 
     def token(kind, value):
         encoded = json.dumps(value, sort_keys=True, ensure_ascii=False, separators=(",", ":")).encode()
@@ -65,17 +79,19 @@ def catalog(source):
                                        for part in node.xpath("./a:latin | ./a:ea | ./a:cs")}}
                     if value["attributes"] or value["fonts"]:
                         references.append(token("type-detail", value))
-            for rel_id in shape._element.xpath(
-                "./p:blipFill//a:blip/@r:embed | ./p:spPr/a:blipFill//a:blip/@r:embed | "
-                "./p:blipFill//*[local-name()='svgBlip']/@r:embed | "
-                "./p:spPr/a:blipFill//*[local-name()='svgBlip']/@r:embed"
-            ):
-                rel = shape.part.rels.get(rel_id)
-                if rel and not rel.is_external and rel.reltype.endswith(("/image", "/hdphoto")):
-                    crops = shape._element.xpath("./p:blipFill/a:srcRect | ./p:spPr/a:blipFill/a:srcRect")
-                    references.append(token("asset", {"sha256": sha256(rel.target_part.blob).hexdigest(),
-                                                       "mime": rel.target_part.content_type,
-                                                       "crop": dict(crops[0].attrib) if crops else {}}))
+            for rel_id, part, crop in embedded_images(shape):
+                fingerprint = sha256(part.blob).hexdigest()
+                references.append(token("asset", {"sha256": fingerprint,
+                                                   "mime": part.content_type, "crop": crop}))
+                if asset_objects is not None and identifier in asset_objects:
+                    media = {
+                        "relationship": rel_id,
+                        "part": str(part.partname),
+                        "mime": part.content_type,
+                        "sha256": fingerprint,
+                        "crop": crop,
+                    }
+                    selected.setdefault(identifier, []).append((media, part.blob))
             objects[identifier] = {
                 "page": page, "object": shape.shape_id, "parent": parent, "layer": index,
                 "kind": shape.shape_type.name if shape.shape_type is not None else "UNKNOWN",
@@ -100,16 +116,65 @@ def catalog(source):
             "theme_fonts": {name: token("typeface", value) for name, value in theme[2].items() if value},
         }
         collect(slide.shapes, page, theme)
+    if asset_objects is not None:
+        export_assets(fingerprint, objects, asset_objects, selected, assets_out)
     return {"version": 1, "source_sha256": fingerprint, "pages": len(deck.slides),
             "objects": objects, "tokens": tokens, "surfaces": surfaces}
+
+
+def export_assets(fingerprint, objects, requested, selected, destination):
+    missing = [identifier for identifier in requested if identifier not in objects]
+    if missing:
+        raise ValueError("Unknown source objects: " + ", ".join(missing))
+
+    records = []
+    files = {}
+    for identifier in requested:
+        obj = objects[identifier]
+        media_items = []
+        for media, data in selected.get(identifier, []):
+            extension = Path(media["part"]).suffix.lower()
+            if not extension[1:].isalnum():
+                extension = ".bin"
+            filename = files.setdefault(media["sha256"], (media["sha256"] + extension, data))[0]
+            media_items.append({**media, "file": filename})
+        records.append({
+            "id": identifier,
+            "page": obj["page"],
+            "object": obj["object"],
+            "parent": obj["parent"],
+            "kind": obj["kind"],
+            "bounds": obj["bounds"],
+            "rotation": obj["rotation"],
+            "status": "exported" if media_items else "no-embedded-image",
+            "media": media_items,
+        })
+
+    destination.mkdir(parents=True, exist_ok=False)
+    for filename, data in files.values():
+        (destination / filename).write_bytes(data)
+    manifest = {"version": 1, "source_sha256": fingerprint, "objects": records}
+    (destination / "assets-manifest.json").write_text(
+        json.dumps(manifest, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
+    )
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("source", type=Path)
     parser.add_argument("--out", type=Path, required=True)
+    parser.add_argument("--assets-out", type=Path, help="New directory for selected native media")
+    parser.add_argument("--asset-object", action="append", help="Export an object ID from the catalog, such as p4-o23")
     args = parser.parse_args()
-    result = catalog(args.source)
+    if bool(args.asset_object) != bool(args.assets_out):
+        parser.error("--assets-out and at least one --asset-object are required together")
+    if args.out.exists():
+        parser.error(f"Catalog already exists: {args.out}")
+    try:
+        requested = dict.fromkeys(args.asset_object) if args.asset_object else None
+        result = catalog(args.source, asset_objects=requested, assets_out=args.assets_out)
+    except (ValueError, OSError) as error:
+        parser.exit(2, f"Catalog rejected: {error}\n")
     with args.out.open("x", encoding="utf-8") as output:
         json.dump(result, output, ensure_ascii=False, indent=2)
         output.write("\n")
