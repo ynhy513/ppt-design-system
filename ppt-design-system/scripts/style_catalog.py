@@ -83,7 +83,7 @@ def catalog(source, *, asset_objects=None, assets_out=None):
                 fingerprint = sha256(part.blob).hexdigest()
                 references.append(token("asset", {"sha256": fingerprint,
                                                    "mime": part.content_type, "crop": crop}))
-                if asset_objects is not None and identifier in asset_objects:
+                if assets_out is not None and (asset_objects is None or identifier in asset_objects):
                     media = {
                         "relationship": rel_id,
                         "part": str(part.partname),
@@ -116,8 +116,9 @@ def catalog(source, *, asset_objects=None, assets_out=None):
             "theme_fonts": {name: token("typeface", value) for name, value in theme[2].items() if value},
         }
         collect(slide.shapes, page, theme)
-    if asset_objects is not None:
-        export_assets(fingerprint, objects, asset_objects, selected, assets_out)
+    if assets_out is not None:
+        requested = selected if asset_objects is None else asset_objects
+        export_assets(fingerprint, objects, requested, selected, assets_out)
     return {"version": 1, "source_sha256": fingerprint, "pages": len(deck.slides),
             "objects": objects, "tokens": tokens, "surfaces": surfaces}
 

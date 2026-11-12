@@ -1,4 +1,4 @@
-# 运行准备与 PPTX 证据采集
+# 运行准备与参考证据采集
 
 在仓库根目录运行以下命令，或用实际的 Skill 安装路径代替 `ppt-design-system`。使用 Python 3.11 和独立虚拟环境。
 
@@ -11,9 +11,28 @@ python ppt-design-system/scripts/style_catalog.py reference.pptx --out element-c
 
 浏览器检查可选，使用 Node.js、Playwright 与 Chromium。在仓库根目录安装 Playwright 并运行 `npx playwright install chromium` 后，即可用 `node ppt-design-system/scripts/audit_replay.cjs /path/to/replay.html` 检查。也可以通过 `REPLAY_PLAYWRIGHT_PACKAGE` 和 `REPLAY_CHROMIUM` 指向已有的安装。
 
+## 自动生成素材清单和覆盖表
+
+```bash
+python ppt-design-system/scripts/extract_review.py scan reference.pptx --out extract-scan
+python ppt-design-system/scripts/extract_review.py assess extract-scan --pack baseline.zip --out baseline-review
+python ppt-design-system/scripts/extract_review.py assess extract-scan --pack completed.zip \
+  --baseline baseline.zip --review decisions.json --out completed-review
+```
+
+两步都输出 `asset-inventory.md`、`component-coverage.md` 和 `component-coverage.json`。用新的输出目录保留每轮结果。扫描阶段同时生成 `element-catalog.json` 和 `assets/assets-manifest.json`，供挑选入包的原件和区域。PPTX 扫描可见幻灯片对象树中的内嵌图，保留对象实例、包内地址和裁切。PDF 按绘制实例导出图流，原件按指纹去重，另记区域、滤镜和解码或掩码依赖。截图只登记整张图的像素证据，后续可登记裁切及重建件。母版独有的对象、链接资源、PDF 矢量绘图和截图内分层需要结合原稿另行审阅。
+
+默认探测双向闭环和三阶段行动验收。用 `--probe` 指定其他中性语义稿，首轮及补足轮使用同一份。若设计包规定全稿顺序，语义稿也须指定该顺序。扫描表的初始状态是待人工核对。评估通过正式编译器验证现有配方，并记录槽位容量与独立图形绑定。目录和 ZIP 均可输入。待改造或延展的人工判断用章节 ID、目录证据 ID 和一句说明登记。
+
+```json
+{"checkpoints":{"decision":"adapt","evidence":["p8-o52"],"note":"沿用阶段带，补行动与验收字段。"}}
+```
+
+`decision` 可选 `adapt`、`extend` 或 `pending`。人工判断不能将编译缺口改为填槽通过。把选中资产的 `role` 和 `follows` 补在设计包清单的实例记录中。角色用承载、装饰、可换内容或证据，跟随范围用页面、组件或内容槽。补足后将最新覆盖表并入 `STYLE.md`，测试稿和生成报告作为包外证据。
+
 ## 从 PPTX 提取装饰素材
 
-始终保留原始 PPTX，先用 `style_catalog.py` 扫描对象，再用 PDF 或图片预览判断哪些装饰可复用。把预览上的图标、剪贴、纸纹和笔刷对应到目录中的对象 ID。组合对象用 `parent` 找到内嵌图片的子对象。只导出本次选中的对象。工具只收到 PDF 预览时，标记原件缺失，并请用户提供 PPTX 以导出源素材。
+始终保留原始 PPTX，先扫描对象，再用 PDF 或图片预览判断哪些装饰可复用。把预览上的图标、剪贴、纸纹和笔刷对应到目录中的对象 ID。组合对象用 `parent` 找到内嵌图片的子对象。以下命令可单独重导本次选中的对象。工具只收到 PDF 预览时，按 PDF 图流定位，PPTX 原始对象需回源。
 
 ```bash
 python ppt-design-system/scripts/style_catalog.py reference.pptx --out element-catalog-reviewed.json \

@@ -1,0 +1,65 @@
+{
+  "version": 1,
+  "chapters": [
+    {
+      "id": "feedback",
+      "intent": "表达两个参与方相互回传的信息。",
+      "relation": "feedback-loop",
+      "fields": {
+        "kicker": "图书归还 / 试点",
+        "folio": "01",
+        "title": "两边一起闭环",
+        "setup": "每次发出信息，都有对应结果回传。",
+        "loop-label": "状态同步"
+      },
+      "items": [
+        {
+          "party": "借阅处",
+          "mechanism": "登记归还",
+          "flow": "还书单与册号",
+          "constraint": "册号缺失时补登记。"
+        },
+        {
+          "party": "归档组",
+          "mechanism": "确认归档",
+          "flow": "入库回执",
+          "constraint": "异常时注明原因。"
+        }
+      ]
+    },
+    {
+      "id": "checkpoints",
+      "intent": "表达三个阶段的行动和对应验收。",
+      "relation": "action-checkpoints",
+      "fields": {
+        "kicker": "图书归还 / 试点",
+        "folio": "02",
+        "title": "用三次验收推进",
+        "decision": "每阶段达到验收条件后进入下一阶段。"
+      },
+      "items": [
+        {
+          "milestone": "第一阶段",
+          "action-label": "行动",
+          "action": "对齐归还字段与册号。",
+          "check-label": "验收",
+          "check": "两组能查询同一册号。"
+        },
+        {
+          "milestone": "第二阶段",
+          "action-label": "行动",
+          "action": "抽取一批归还件走交接。",
+          "check-label": "验收",
+          "check": "每笔都有收件回执。"
+        },
+        {
+          "milestone": "第三阶段",
+          "action-label": "行动",
+          "action": "复核未关闭的记录。",
+          "check-label": "验收",
+          "check": "异常都有下一步负责人。"
+        }
+      ]
+    }
+  ]
+}

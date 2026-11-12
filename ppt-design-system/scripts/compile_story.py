@@ -87,9 +87,8 @@ def fit(chapter, recipe):
     return slots, None
 
 
-def compile_story(system, catalog, grammar, manuscript):
-    contracts = check_system(system)
-    check_grammar(system, catalog, grammar, contracts)
+def check_manuscript(manuscript):
+    require(isinstance(manuscript, dict), "Expected a semantic manuscript object")
     require({"version", "chapters"} <= manuscript.keys() <= {"version", "chapters", "sequence"},
             "The manuscript accepts chapter semantics and an optional sequence")
     chapters = manuscript["chapters"]
@@ -97,7 +96,22 @@ def compile_story(system, catalog, grammar, manuscript):
             "Expected 1–120 semantic chapters")
     require(all(isinstance(chapter, dict) and CHAPTER_FIELDS <= chapter.keys() <= CHAPTER_FIELDS | {"variant"}
                 for chapter in chapters), "Chapters must contain only semantic fields")
+    for chapter in chapters:
+        require(isinstance(chapter["fields"], dict) and isinstance(chapter["items"], list)
+                and all(isinstance(item, dict) for item in chapter["items"]), "Invalid chapter fields")
+        values = [*chapter["fields"].values(), *(value for item in chapter["items"] for value in item.values())]
+        require(all(isinstance(value, str) and (value == "" or value.strip()) for value in values),
+                "Invalid chapter value")
+        require(all(isinstance(chapter[key], str) and chapter[key].strip()
+                    for key in ("id", "relation", "intent")), "Missing chapter ID, relation or intent")
     require(len({chapter["id"] for chapter in chapters}) == len(chapters), "Duplicate chapter ID")
+
+
+def compile_story(system, catalog, grammar, manuscript):
+    contracts = check_system(system)
+    check_grammar(system, catalog, grammar, contracts)
+    check_manuscript(manuscript)
+    chapters = manuscript["chapters"]
     plan = {"version": 1, "pages": []}
     trace, gaps = [], []
     sequence = manuscript.get("sequence")
@@ -108,12 +122,6 @@ def compile_story(system, catalog, grammar, manuscript):
     if steps is not None:
         require(len(chapters) == len(steps), "Unexpected number of semantic chapters in sequence")
     for index, chapter in enumerate(chapters):
-        require(isinstance(chapter["fields"], dict) and isinstance(chapter["items"], list)
-                and all(isinstance(item, dict) for item in chapter["items"]), "Invalid chapter fields")
-        values = [*chapter["fields"].values(), *(value for item in chapter["items"] for value in item.values())]
-        require(all(isinstance(value, str) and (value == "" or value.strip()) for value in values),
-                "Invalid chapter value")
-        require(isinstance(chapter["intent"], str) and chapter["intent"].strip(), "Missing chapter intent")
         candidates, rejected = [], {}
         for identifier, recipe in sorted(grammar["recipes"].items()):
             if recipe["relation"] != chapter["relation"]:
@@ -121,9 +129,12 @@ def compile_story(system, catalog, grammar, manuscript):
             if recipe.get("variant") != chapter.get("variant"):
                 rejected[identifier] = "版式变体不匹配"
                 continue
-            if steps is not None and recipe["pattern"] not in steps[index]["patterns"]:
-                rejected[identifier] = "与已批准的章节顺序冲突"
-                continue
+            if steps is not None:
+                step = steps[index]
+                if (recipe["pattern"] not in step["patterns"]
+                        or any(recipe[key] != step[key] for key in ("focus", "density", "weight"))):
+                    rejected[identifier] = "与已批准的章节顺序冲突"
+                    continue
             slots, failure = fit(chapter, recipe)
             if failure:
                 rejected[identifier] = failure
@@ -156,9 +167,10 @@ def compile_story(system, catalog, grammar, manuscript):
                                              [layer for layer in pattern["layers"] if layer["id"] in layers], system))),
                                          "layers": layers}
                                    for key, layers in recipe["use_elements"].items()}})
+    if plan["pages"] and (not gaps or sequence is not None or not system.get("sequences")):
+        check_plan(plan, system, contracts, partial=bool(gaps))
     if gaps:
         return None, {"compiled": trace, "extensions_needed": gaps}
-    check_plan(plan, system, contracts)
     return plan, {"compiled": trace, "extensions_needed": []}
 
 

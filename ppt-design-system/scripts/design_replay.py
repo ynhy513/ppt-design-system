@@ -215,7 +215,7 @@ def check_source(system, source):
     require(count == system["source"]["pages"], "Source page count does not match")
 
 
-def check_plan(plan, system, contracts):
+def check_plan(plan, system, contracts, *, partial=False):
     require(isinstance(plan, dict) and {"version", "pages"} <= plan.keys() <= {"version", "pages", "sequence"}
             and type(plan["version"]) is int
             and plan["version"] == 1, "Invalid plan version or fields")
@@ -251,7 +251,7 @@ def check_plan(plan, system, contracts):
             start = value.find(fragment)
             require(fragment == fragment.strip() and start >= 0 and value.find(fragment, start + 1) < 0,
                     f"Underline must match one exact phrase on {identifier}/{layer['id']}")
-    if "sequence" in plan:
+    if "sequence" in plan and not partial:
         name = plan["sequence"]
         require(isinstance(name, str) and name in sequences, "Unknown sequence")
         steps = sequences[name]

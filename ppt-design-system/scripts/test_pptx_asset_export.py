@@ -45,3 +45,8 @@ def test_exports_svg_and_original_alpha_fallback_from_group(tmp_path):
     assert (destination / files["image/png"]["file"]).read_bytes() == png.read_bytes()
     assert (destination / files["image/svg+xml"]["file"]).read_bytes() == svg
     assert files["image/png"]["crop"] == {"l": "15000"}
+
+    all_assets = tmp_path / "all"
+    assert catalog(source, assets_out=all_assets) == result
+    automatically_exported = json.loads((all_assets / "assets-manifest.json").read_text())
+    assert automatically_exported["objects"] == [exported]
