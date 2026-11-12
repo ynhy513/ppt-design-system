@@ -151,6 +151,7 @@
           "fit": {"enum": ["cover", "contain"]},
           "position": {"$ref": "#/$defs/point"},
           "motif": {"$ref": "#/$defs/id"},
+          "bindings": {"type": "object", "propertyNames": {"$ref": "#/$defs/id"}, "additionalProperties": {"$ref": "#/$defs/id"}},
           "paint": {"type": "object", "propertyNames": {"$ref": "#/$defs/id"}, "additionalProperties": {"$ref": "#/$defs/id"}}
         }
       }

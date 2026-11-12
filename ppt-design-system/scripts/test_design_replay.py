@@ -75,6 +75,50 @@ def test_replay_keeps_content_as_text(design_system):
     assert '<img src="external">' not in html
 
 
+def test_replay_binds_one_motif_in_two_layouts(design_system):
+    overview = design_system["patterns"]["editorial"]
+    design_system["motifs"]["summary"] = overview["layers"]
+    instance = {"kind": "motif", "id": "summary", "motif": "summary",
+                "box": [5, 20, 90, 60], "bindings": {"title": "headline"}}
+    overview["layers"] = [instance]
+    design_system["patterns"]["sidebar"] = {
+        **overview,
+        "layers": [{**instance, "box": [35, 15, 60, 70], "bindings": {"title": "aside"}}],
+    }
+    first = {"id": "first", "role": "comparison", "pattern": "editorial", "focus": "summary",
+             "weight": "high", "density": "low", "slots": {"headline": "Overview <sample>"}}
+    second = {**first, "id": "second", "pattern": "sidebar", "slots": {"aside": "Sidebar sample"}}
+    plan = {"version": 1, "pages": [first, second]}
+    contracts = check_system(design_system)
+    assert contracts["editorial"] == ({"summary"}, {"headline": "text"})
+    assert contracts["sidebar"] == ({"summary"}, {"aside": "text"})
+    draw, asset, _ = make_renderer(design_system, None, set())
+    html = render(design_system, check_plan(plan, design_system, contracts), draw, asset)
+    assert html.count('data-motif="summary"') == 2
+    assert "left:5%;top:20%;width:90%;height:60%" in html
+    assert "left:35%;top:15%;width:60%;height:70%" in html
+    assert "<span>Overview &lt;sample&gt;</span>" in html
+    assert "<span>Sidebar sample</span>" in html
+    second["slots"] = {"headline": "Wrong layout slot"}
+    with pytest.raises(ValueError, match="Slot mismatch on second"):
+        check_plan(plan, design_system, contracts)
+
+
+def test_replay_rejects_missing_unknown_or_colliding_motif_bindings(design_system):
+    layers = design_system["patterns"]["editorial"]["layers"]
+    design_system["motifs"]["summary"] = [{**layers[0], "slot": "inner-title"}]
+    motif = {"kind": "motif", "id": "summary", "motif": "summary", "box": [5, 20, 90, 60]}
+    layers.append(motif)
+    with pytest.raises(ValueError, match="Motif slot bindings do not match"):
+        check_system(design_system)
+    motif["bindings"] = {"unknown": "caption"}
+    with pytest.raises(ValueError, match="Motif slot bindings do not match"):
+        check_system(design_system)
+    motif["bindings"] = {"inner-title": "title"}
+    with pytest.raises(ValueError, match="Repeated page slot"):
+        check_system(design_system)
+
+
 def test_replay_underlines_only_the_exact_phrase(design_system):
     design_system["patterns"]["editorial"]["layers"][0]["underline_slot"] = "emphasis"
     contracts = check_system(design_system)

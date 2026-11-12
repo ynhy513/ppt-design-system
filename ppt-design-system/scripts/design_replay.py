@@ -21,7 +21,7 @@ FIELDS = {
     "image": ({"box", "fit", "position"}, {"slot", "asset", "radius", "rotation"}),
     "line": ({"points", "stroke", "weight"}, {"arrow"}),
     "curve": ({"points", "stroke", "weight"}, {"arrow"}),
-    "motif": ({"box", "motif"}, {"paint"}),
+    "motif": ({"box", "motif"}, {"paint", "bindings"}),
 }
 TOKEN_GROUPS = {
     "fill": "colors", "ink": "colors", "stroke": "colors", "type": "type",
@@ -62,7 +62,8 @@ def box_ok(box):
     return w > 0 and h > 0 and x + w <= 100.001 and y + h <= 100.001
 
 
-def check_layers(layers, system, *, motif=False):
+def check_layers(layers, system, motif_slots=None):
+    inside_motif = motif_slots is None
     ids, slots = set(), {}
     for layer in layers:
         kind, identifier = layer["kind"], layer["id"]
@@ -82,23 +83,32 @@ def check_layers(layers, system, *, motif=False):
         if kind == "text":
             require(("slot" in layer) != ("value" in layer), f"Supply text or a slot on {identifier}")
         if kind == "image":
+            require(not inside_motif, f"Image in motif: {identifier}")
             require(("slot" in layer) != ("asset" in layer), f"Supply a fixed asset or image slot on {identifier}")
             if "asset" in layer:
-                require(not motif and layer["asset"] in system.get("fixed_assets", {}),
-                        f"Unknown or nested fixed image on {identifier}")
+                require(layer["asset"] in system.get("fixed_assets", {}), f"Unknown fixed image on {identifier}")
         if "slot" in layer:
             name = layer["slot"]
-            require(not motif and name not in slots, f"Unavailable or repeated slot: {name}")
+            require(name not in slots, f"Unavailable or repeated slot: {name}")
             slots[name] = kind
         if "underline_slot" in layer:
             name = layer["underline_slot"]
-            require("slot" in layer and name not in slots, f"Unavailable or repeated underline slot: {name}")
+            require(not inside_motif and "slot" in layer and name not in slots,
+                    f"Unavailable or repeated underline slot: {name}")
             slots[name] = "text"
         if kind == "motif":
-            require(not motif and layer["motif"] in system["motifs"], f"Unknown or nested motif: {identifier}")
+            name = layer["motif"]
+            require(not inside_motif and name in motif_slots, f"Unknown or nested motif: {identifier}")
+            bindings = layer.get("bindings", {})
+            inner_slots = motif_slots[name]
+            require(bindings.keys() == inner_slots.keys(), f"Motif slot bindings do not match on {identifier}")
+            page_slots = set(bindings.values())
+            require(len(page_slots) == len(bindings) and page_slots.isdisjoint(slots),
+                    f"Repeated page slot on motif {identifier}")
+            slots.update((page_slot, inner_slots[inner_slot]) for inner_slot, page_slot in bindings.items())
             colors = system["tokens"]["colors"]
             for key, value in layer.get("paint", {}).items():
-                used = {part[field] for part in system["motifs"][layer["motif"]]
+                used = {part[field] for part in system["motifs"][name]
                         for field in ("fill", "ink", "stroke") if field in part}
                 require(key in used and value in colors, f"Invalid motif color override: {key}")
     return ids, slots
@@ -142,8 +152,7 @@ def check_system(system):
     require(system["token_rules"].keys() == token_keys, "Every token needs exactly one provenance rule")
     for name, rule in system["token_rules"].items():
         require(rule in rules, f"Unknown token rule on {name}")
-    for layers in system["motifs"].values():
-        check_layers(layers, system, motif=True)
+    motif_slots = {name: check_layers(layers, system)[1] for name, layers in system["motifs"].items()}
     contracts = {}
     allowed = {page for item in families.values() if item["scope"] != "excluded" for page in item["pages"]}
     for key, pattern in system["patterns"].items():
@@ -151,7 +160,7 @@ def check_system(system):
         require(name in families and families[name]["scope"] != "excluded", f"Disallowed family on {key}")
         require(pattern["background"] in system["tokens"]["colors"], f"Unknown background on {key}")
         require(all(ref in rules for ref in pattern["rules"]), f"Unknown rule on {key}")
-        contracts[key] = check_layers(pattern["layers"], system)
+        contracts[key] = check_layers(pattern["layers"], system, motif_slots)
         token_names = {f'colors.{pattern["background"]}', *used_tokens(pattern["layers"], system)}
         rule_ids = {*pattern["rules"], *(system["token_rules"][name] for name in token_names)}
         pages = {evidence[ev]["page"] for ref in rule_ids for ev in rules[ref]["evidence"]}
@@ -329,7 +338,12 @@ def make_renderer(system, assets, original_media):
                 url = asset(slots[layer["slot"]])
             return (f'<img {attr} src="{url}" alt="" style="{pos};object-fit:{layer["fit"]};'
                     f'object-position:{image_x}% {image_y}%;border-radius:{radius}">')
-        body = "".join(draw(part, {}, f"{prefix}-{identifier}", layer.get("paint"))
+        bindings = layer.get("bindings", {})
+        component_slots = {inner: slots[outer] for inner, outer in bindings.items()}
+        if bindings:
+            # Bound text uses the slide's typography while the motif region controls its geometry.
+            pos += ";container-type:normal"
+        body = "".join(draw(part, component_slots, f"{prefix}-{identifier}", layer.get("paint"))
                        for part in system["motifs"][layer["motif"]])
         return f'<div class="motif" {attr} data-motif="{layer["motif"]}" style="{pos}">{body}</div>'
 
