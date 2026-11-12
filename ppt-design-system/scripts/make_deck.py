@@ -128,7 +128,7 @@ def apply_edits(plan, model, edits, originals):
     return adjusted, boxes, images
 
 
-def editable_html(static_html, model, edits):
+def editable_html(static_html, model, edits, export_token=None):
     def payload(identifier, value):
         data = snapshot(value).replace("<", "\\u003c")
         return f'<script type="application/json" id="{identifier}">{data}</script>'
@@ -136,10 +136,11 @@ def editable_html(static_html, model, edits):
     chrome = (EDITOR / "deck-editor.html").read_text(encoding="utf-8")
     style = (EDITOR / "deck-editor.css").read_text(encoding="utf-8")
     script = (EDITOR / "deck-editor.js").read_text(encoding="utf-8")
+    export = payload("deck-export", export_token) if export_token else ""
     return (static_html.replace("<title>Design system replay</title>", "<title>演示与编辑</title>", 1)
             .replace("</style><main>", f"</style><style>{style}</style>{chrome}<main>", 1)
             .replace("</main></html>", "</main>" + payload("deck-model", model) + payload("deck-edits", edits)
-                     + f"<script>{script}</script></html>", 1))
+                     + export + f"<script>{script}</script></html>", 1))
 
 
 def storyboard_text(model, plan, trace):
@@ -155,7 +156,7 @@ def storyboard_text(model, plan, trace):
     return "\n".join(lines)
 
 
-def make(args, stage):
+def make(args, stage, *, export_token=None):
     if args.pack.is_dir():
         pack = args.pack
         errors = check_directory(pack, None)
@@ -196,7 +197,7 @@ def make(args, stage):
     draw, _, _ = make_renderer(system, None, set(), asset_resolver=asset)
     base = render(system, plan["pages"], draw, asset)
     replay = render(system, pages, draw, asset, boxes)
-    (stage / "deck.html").write_text(editable_html(base, model, edits), encoding="utf-8")
+    (stage / "deck.html").write_text(editable_html(base, model, edits, export_token), encoding="utf-8")
     (stage / "replay.html").write_text(replay, encoding="utf-8")
     (stage / "storyboard.md").write_text(storyboard_text(model, adjusted, trace), encoding="utf-8")
     save_json(stage / "storyboard.json", plan)

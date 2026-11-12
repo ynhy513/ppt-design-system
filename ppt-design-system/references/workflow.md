@@ -59,6 +59,8 @@ python ppt-design-system/scripts/package_design.py ./design-pack.zip
 
 ## 制作并编辑整套演示
 
+直接在编辑页交付文件时，使用[本地编辑入口](#在编辑页直接导出)。以下命令适用于批量制作及单文件离线交付。
+
 ```bash
 python ppt-design-system/scripts/make_deck.py design-pack.zip confirmed-manuscript.json \
   --assets ./content-assets --out ./first-draft
@@ -72,3 +74,14 @@ python ppt-design-system/scripts/make_deck.py design-pack.zip confirmed-manuscri
 - 修改可存于当前浏览器。另存 HTML 会携带修改并继续可编辑。导出修改会得到 `edits.json`，可导入同一份演示，或用上面的命令重新生成 PPTX 和静态预览。重建应使用原设计包与原确认稿。源设计包和确认稿作为编辑基线。
 - `storyboard.md` 供审阅页序、任务和布局，`replay.html` 用于静态排版复核。HTML 的溢出提示检查文字槽，成稿还需看遮挡、焦点和阅读顺序。
 - PPTX 支持原生文字、形状、直线箭头、图片及组件分组。复杂曲线可用 `--html-only` 交付，原生表格和数据图表尚未接入此导出路径。保真度和字体在目标 Office 验收，打开文件、局部编辑、保存并重开是单独的检查。
+
+### 在编辑页直接导出
+
+```bash
+python ppt-design-system/scripts/serve_deck.py design-pack.zip confirmed-manuscript.json \
+  --assets ./content-assets --name 演示稿
+```
+
+打开命令给出的本机链接即可开始编辑。右上角「导出」可下载当前稿的可编辑 PPTX 和 16:9 PDF，也可另存可离线编辑的 HTML。左右位置和宽高按画幅百分比填写。「撤销」可恢复最近一次拖动、缩放、文字编辑、换图、重置或导入。
+
+导出以点击时的编辑状态为准。PPTX 复用原生制作路径，PDF 使用 Chromium 输出一张幻灯片一页。PDF 需按前文安装 Node.js、Playwright 与 Chromium，也可设置 `REPLAY_PLAYWRIGHT_PACKAGE`、`REPLAY_CHROMIUM`，并用 `--node` 指定 Node.js。编辑页在服务运行期间可用，默认地址为 `http://127.0.0.1:8769/`。另存的单文件 HTML 可离线编辑，直接导出 PPTX/PDF 使用本机编辑入口。

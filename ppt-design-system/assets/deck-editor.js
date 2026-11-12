@@ -3,6 +3,8 @@
   const byId = id => document.getElementById(id);
   const model = JSON.parse(byId('deck-model').textContent);
   const embedded = JSON.parse(byId('deck-edits').textContent);
+  const exportToken = location.protocol === 'http:' && byId('deck-export')
+    ? JSON.parse(byId('deck-export').textContent) : null;
   const articles = [...document.querySelectorAll('main > article')];
   const key = 'ppt-design-system:' + model.base + ':' + location.pathname;
   const record = value => value && typeof value === 'object' && !Array.isArray(value);
@@ -27,6 +29,8 @@
   let selectedLayer = '';
   let selectedSlot = '';
   let drag;
+  let undoState;
+  let typing = '';
   let pristineHtml;
   let edits = embedded;
   const page = () => articles[active];
@@ -86,6 +90,26 @@
     } catch {
       status('请另存 HTML 或导出修改');
     }
+  }
+
+  function remember(pageIndex = active) {
+    undoState = { edits: structuredClone(edits), pageIndex };
+    byId('undo').disabled = false;
+  }
+
+  function undo() {
+    if (!undoState) return;
+    const { edits: previous, pageIndex } = undoState;
+    edits = previous;
+    undoState = undefined;
+    typing = '';
+    byId('undo').disabled = true;
+    articles.forEach(showSlide);
+    if (active !== pageIndex) showPage(pageIndex);
+    else refreshInspector();
+    persist();
+    status('已撤销上一步');
+    warning();
   }
   function setBox(node, box) {
     ['left', 'top', 'width', 'height'].forEach((prop, i) => { node.style[prop] = box[i] + '%'; });
@@ -171,12 +195,14 @@
     options(byId('layer-select'), Object.keys(spec().boxes).map(id => [id, friendly(id)]), '选择或点击图层');
     options(byId('slot-select'), spec().layers.map(item => [item.slot, friendly(item.slot)]), '选择文字或图片');
     selectedLayer = selectedSlot = '';
+    typing = '';
     refreshInspector();
     warning();
     try { history.replaceState(null, '', '#' + page().id); } catch { /* local browser restrictions */ }
   }
 
   function selectLayer(id, slot = '') {
+    typing = '';
     selectedLayer = own(spec().boxes, id) ? id : '';
     selectedSlot = slot || spec().layers.find(entry => entry.layer === id && !entry.group)?.slot || '';
     refreshInspector();
@@ -184,6 +210,8 @@
 
   function updateBox(box, save = true) {
     if (!selectedLayer || !goodBox(box)) return false;
+    if (box.every((value, i) => value === boxOf(selectedLayer)[i])) return false;
+    if (save) remember();
     (editable().boxes ||= {})[selectedLayer] = box;
     setBox(findLayer(page(), selectedLayer), box);
     setBox(outline, box);
@@ -201,6 +229,44 @@
     setTimeout(() => URL.revokeObjectURL(url), 2000);
   }
 
+  async function exportFile(format) {
+    const buttons = ['export-pptx', 'export-pdf'].map(byId);
+    if (buttons[0].disabled) return;
+    const current = JSON.stringify(edits);
+    buttons.forEach(button => { button.disabled = true; });
+    byId('export-menu').open = false;
+    status('正在生成 ' + format.toUpperCase() + '…');
+    try {
+      const response = await fetch('/export/' + format, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-Deck-Session': exportToken },
+        body: current,
+      });
+      if (!response.ok) throw new Error((await response.json()).error);
+      const header = response.headers.get('Content-Disposition') || '';
+      const name = header.match(/filename\*=UTF-8''([^;]+)/i)?.[1];
+      const file = await response.blob();
+      download(name ? decodeURIComponent(name) : 'deck.' + format, file.type, file);
+      status(current === JSON.stringify(edits) ? '已下载当前稿' : '已下载点击时的版本，后续修改已保留');
+    } catch (error) {
+      const message = error instanceof TypeError ? '请确认本地编辑页仍在运行后重试' : error.message;
+      status('导出失败 · ' + message);
+    } finally {
+      buttons.forEach(button => { button.disabled = false; });
+    }
+  }
+
+  function setEditing(on) {
+    editing = on;
+    document.body.classList.toggle('is-editing', editing);
+    byId('inspector').hidden = !editing;
+    byId('download-html').hidden = !editing && !exportToken;
+    byId('edit-mode').textContent = editing ? '返回演示' : '编辑';
+    byId('edit-mode').setAttribute('aria-pressed', String(editing));
+    refreshInspector();
+    requestAnimationFrame(warning);
+  }
+
   document.addEventListener('DOMContentLoaded', () => {
     pristineHtml = document.documentElement.outerHTML;
     try {
@@ -212,26 +278,42 @@
       showSlide(slide);
     }
     showPage(active);
+    if (exportToken) {
+      byId('export-menu').hidden = false;
+      byId('export-options').append(byId('download-html'));
+      byId('download-edits').textContent = '下载修改备份';
+      setEditing(true);
+    }
     status(Object.keys(edits.pages).length ? '已加载修改' : '');
   });
 
   byId('previous').onclick = () => showPage(active - 1);
   byId('next').onclick = () => showPage(active + 1);
   byId('page-select').onchange = event => showPage(event.target.selectedIndex);
-  byId('edit-mode').onclick = () => {
-    editing = !editing;
-    document.body.classList.toggle('is-editing', editing);
-    byId('inspector').hidden = byId('download-html').hidden = !editing;
-    byId('edit-mode').textContent = editing ? '返回演示' : '编辑';
-    byId('edit-mode').setAttribute('aria-pressed', String(editing));
-    refreshInspector();
-    requestAnimationFrame(warning);
-  };
+  byId('edit-mode').onclick = () => setEditing(!editing);
+  byId('export-pptx').onclick = () => exportFile('pptx');
+  byId('export-pdf').onclick = () => exportFile('pdf');
+  byId('undo').onclick = undo;
+  document.addEventListener('click', event => {
+    if (!byId('export-menu').contains(event.target)) byId('export-menu').open = false;
+  });
   byId('full-screen').onclick = () => {
     if (document.fullscreenElement) document.exitFullscreen();
     else document.body.requestFullscreen?.().catch(() => status('浏览器未开启全屏'));
   };
   document.addEventListener('keydown', event => {
+    const menu = byId('export-menu');
+    if (event.key === 'Escape' && menu.open) {
+      menu.open = false;
+      menu.querySelector('summary').focus();
+      return;
+    }
+    if (editing && (event.metaKey || event.ctrlKey) && !event.shiftKey && event.key.toLowerCase() === 'z'
+        && !event.target.matches('input,select,textarea')) {
+      event.preventDefault();
+      undo();
+      return;
+    }
     if (event.altKey || event.metaKey || event.ctrlKey || event.target.matches('input,select,textarea,button')) return;
     if (['ArrowLeft', 'ArrowRight'].includes(event.key)) {
       event.preventDefault();
@@ -246,12 +328,20 @@
   boxInputs.forEach(input => {
     input.onchange = () => {
       const values = boxInputs.map(field => field.valueAsNumber);
-      if (!updateBox(values)) { refreshInspector(); status('位置或尺寸超出画布'); }
+      if (!goodBox(values)) { refreshInspector(); status('位置或尺寸超出画布'); }
+      else updateBox(values);
     };
   });
+  byId('slot-text').onblur = () => { typing = ''; };
   byId('slot-text').oninput = event => {
     const entry = spec().layers.find(item => item.slot === selectedSlot);
     if (!entry || !goodText(event.target.value, entry)) { status('保留上一次有效文字'); return; }
+    const previous = saved().slots?.[selectedSlot] ?? spec().slots[selectedSlot];
+    if (event.target.value === previous) return;
+    if (typing !== selectedSlot) {
+      remember();
+      typing = selectedSlot;
+    }
     (editable().slots ||= {})[selectedSlot] = event.target.value;
     showSlide(page());
     persist();
@@ -272,6 +362,7 @@
       const image = new Image();
       image.onload = () => {
         if (image.width * image.height > 16000000) { status('图片尺寸过大'); return; }
+        remember(articles.findIndex(slide => slide.id === id));
         ((edits.pages[id] ||= {}).images ||= {})[slot] = reader.result;
         showSlide(articles.find(slide => slide.id === id));
         persist();
@@ -285,7 +376,8 @@
 
   byId('reset-page').onclick = () => {
     if (!own(edits.pages, page().id)) return;
-    if (!confirm('恢复本页原始文字和图层位置？')) return;
+    if (!confirm('恢复本页原始内容和图层位置？')) return;
+    remember();
     delete edits.pages[page().id];
     showSlide(page());
     refreshInspector();
@@ -296,6 +388,7 @@
   byId('download-html').onclick = () => {
     const copy = new DOMParser().parseFromString(pristineHtml, 'text/html');
     copy.getElementById('deck-edits').textContent = asJson(edits);
+    copy.getElementById('deck-export')?.remove();
     download('演示-已编辑.html', 'text/html;charset=utf-8', '<!doctype html>\n' + copy.documentElement.outerHTML);
   };
   byId('load-edits').onclick = () => byId('edits-file').click();
@@ -306,6 +399,7 @@
     try {
       const update = JSON.parse(await file.text());
       if (!validate(update)) throw new Error('Invalid edit file');
+      remember();
       edits = update;
       articles.forEach(showSlide);
       refreshInspector();
@@ -345,7 +439,10 @@
     const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
     const values = drag.resize ? [x, y, clamp(w + dx, .5, 100 - x), clamp(h + dy, .5, 100 - y)]
       : [clamp(x + dx, 0, 100 - w), clamp(y + dy, 0, 100 - h), w, h];
-    drag.changed = updateBox(values.map(v => Number(v.toFixed(3))), false) || drag.changed;
+    const next = values.map(v => Number(v.toFixed(3)));
+    if (!goodBox(next) || next.every((value, i) => value === boxOf(selectedLayer)[i])) return;
+    if (!drag.changed) remember();
+    drag.changed = updateBox(next, false) || drag.changed;
   });
   for (const eventName of ['pointerup', 'pointercancel', 'lostpointercapture']) {
     canvas.addEventListener(eventName, event => {

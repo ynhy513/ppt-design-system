@@ -31,7 +31,7 @@ For a **multi-page visual storyboard**, read [visual storyboard planning](refere
 
 1. Agree on the audience, presentation purpose, and confirmed copy. Give each page a clear task and its supporting evidence. Use the [visual storyboard guide](references/visual-storyboard.md) to check the title sequence and the whole-deck rhythm before filling slots.
 2. Match the confirmed semantic manuscript against the reviewed design pack. On a gap, review a different approved variant, a split that preserves the content, or a source-backed extension. Preserve the initial pack and do not silently drop or rewrite confirmed content.
-3. Run the [production command](references/workflow.md#制作并编辑整套演示) to produce the storyboard, editable offline HTML, and supported native PPTX layers. In HTML, switch to Edit to change slot text or images and adjust layer positions or sizes. Export the edit file and rebuild when the PowerPoint version needs the same changes.
+3. For interactive editing and direct downloads, open the [local editor](references/workflow.md#在编辑页直接导出) and give the user its link. Edit text, replace images, move or resize layers, and use Export to download the current deck as native PPTX or 16:9 PDF. Use the [production command](references/workflow.md#制作并编辑整套演示) when the requested deliverable is an offline editable HTML or a batch build.
 4. Check the entire deck at thumbnail and reading sizes. Test a local edit, save, and reopen. For PPTX, open the actual export in the target PowerPoint and check that the objects the recipient needs to change remain editable. Record output and compatibility limits with the deliverable.
 
 For PPTX evidence collection and local setup, read the [runtime commands](references/workflow.md).
