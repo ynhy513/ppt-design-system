@@ -75,6 +75,22 @@ def test_replay_keeps_content_as_text(design_system):
     assert '<img src="external">' not in html
 
 
+def test_replay_can_fit_a_source_paper_to_the_full_box(design_system, tmp_path):
+    Image.new("RGBA", (8, 16), "white").save(tmp_path / "paper.png")
+    design_system["patterns"]["editorial"]["layers"].append({
+        "kind": "image", "id": "paper-stock", "slot": "paper-stock",
+        "box": [12, 24, 72, 38], "fit": "fill", "position": [50, 50],
+    })
+    page = {"id": "first", "role": "comparison", "pattern": "editorial", "focus": "title",
+            "weight": "high", "density": "low", "slots": {"title": "Sample", "paper-stock": "paper.png"}}
+    plan = {"version": 1, "pages": [page]}
+    pages = check_plan(plan, design_system, check_system(design_system))
+    draw, asset, hashes = make_renderer(design_system, tmp_path, set())
+    html = render(design_system, pages, draw, asset)
+    assert "width:72%;height:38%;object-fit:fill" in html
+    assert hashes["paper.png"] == sha256((tmp_path / "paper.png").read_bytes()).hexdigest()
+
+
 def test_replay_binds_one_motif_in_two_layouts(design_system):
     overview = design_system["patterns"]["editorial"]
     design_system["motifs"]["summary"] = overview["layers"]

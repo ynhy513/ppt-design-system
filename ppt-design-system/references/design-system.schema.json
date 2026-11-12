@@ -148,7 +148,7 @@
           "align": {"enum": ["left", "center", "right"]},
           "points": {"type": "array", "minItems": 2, "maxItems": 30, "items": {"$ref": "#/$defs/point"}},
           "arrow": {"type": "boolean"},
-          "fit": {"enum": ["cover", "contain"]},
+          "fit": {"enum": ["cover", "contain", "fill"]},
           "position": {"$ref": "#/$defs/point"},
           "motif": {"$ref": "#/$defs/id"},
           "bindings": {"type": "object", "propertyNames": {"$ref": "#/$defs/id"}, "additionalProperties": {"$ref": "#/$defs/id"}},
