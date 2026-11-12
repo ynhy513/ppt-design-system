@@ -103,7 +103,16 @@
         "properties": {
           "family": {"$ref": "#/$defs/id"}, "role": {"$ref": "#/$defs/id"},
           "reason": {"$ref": "#/$defs/note"}, "rules": {"$ref": "#/$defs/ids"},
-          "background": {"$ref": "#/$defs/id"}, "layers": {"$ref": "#/$defs/layers"}
+          "background": {"$ref": "#/$defs/id"}, "layers": {"$ref": "#/$defs/layers"},
+          "required_fixed_assets": {
+            "type": "object", "minProperties": 1, "propertyNames": {"$ref": "#/$defs/id"},
+            "additionalProperties": {
+              "type": "object", "additionalProperties": false, "required": ["asset", "purpose"],
+              "properties": {
+                "asset": {"$ref": "#/$defs/id"}, "purpose": {"$ref": "#/$defs/note"}
+              }
+            }
+          }
         }
       }
     },

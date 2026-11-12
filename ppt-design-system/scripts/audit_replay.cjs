@@ -1,13 +1,53 @@
 /* Check actual Chromium output without loading the network or writing screenshots. */
 const { createHash } = require('node:crypto');
-const { resolve } = require('node:path');
+const { readFileSync } = require('node:fs');
+const { dirname, resolve } = require('node:path');
 const { pathToFileURL } = require('node:url');
+
+function readFixedAssetRequirements(input) {
+  try {
+    const receipt = JSON.parse(readFileSync(resolve(dirname(resolve(input)), 'receipt.json'), 'utf8'));
+    return receipt.pages.flatMap(page => (page.required_fixed_assets || []).map(asset => ({
+      ...asset, page: page.id,
+    })));
+  } catch (error) {
+    if (error.code === 'ENOENT') return [];
+    throw error;
+  }
+}
+
+async function checkFixedAssets(page, requirements) {
+  const issues = [];
+  for (const expected of requirements) {
+    const images = page.locator(`main > article[id="${expected.page}"] > img[data-layer="${expected.layer}"]`);
+    const source = await images.evaluateAll(matches => {
+      if (matches.length !== 1) return null;
+      const [image] = matches;
+      const rect = image.getBoundingClientRect();
+      const slide = image.parentElement.getBoundingClientRect();
+      const style = getComputedStyle(image);
+      const intersectsSlide = rect.left < slide.right && rect.right > slide.left &&
+        rect.top < slide.bottom && rect.bottom > slide.top;
+      return image.complete && image.naturalWidth && rect.width && rect.height && intersectsSlide &&
+        style.visibility === 'visible' && Number(style.opacity) > 0 ? image.currentSrc : null;
+    });
+    const label = `${expected.page}/${expected.layer} (${expected.asset}) — ${expected.purpose}`;
+    const bytes = source?.match(/^data:image\/(?:png|jpeg|webp);base64,(.+)$/)?.[1];
+    if (!bytes) {
+      issues.push(`${label}: required fixed asset is missing or invisible`);
+    } else if (createHash('sha256').update(Buffer.from(bytes, 'base64')).digest('hex') !== expected.sha256) {
+      issues.push(`${label}: required fixed asset bytes do not match`);
+    }
+  }
+  return issues;
+}
 
 async function main() {
   const input = process.argv[2];
   if (!input || process.argv.length !== 3) {
     throw new Error('Usage: node audit_replay.cjs /path/to/replay.html');
   }
+  const requiredAssets = readFixedAssetRequirements(input);
   const { chromium } = require(process.env.REPLAY_PLAYWRIGHT_PACKAGE || 'playwright');
   const browser = await chromium.launch({
     executablePath: process.env.REPLAY_CHROMIUM,
@@ -74,6 +114,7 @@ async function main() {
         if (document.documentElement.scrollWidth > window.innerWidth) issues.push('Horizontal page overflow');
         return issues;
       });
+      issues.push(...await checkFixedAssets(page, requiredAssets));
       const screenshots = {};
       if (!issues.length && width === 1200) {
         for (const slide of await pages.all()) {
@@ -82,7 +123,7 @@ async function main() {
           screenshots[id] = createHash('sha256').update(png).digest('hex');
         }
       }
-      checks.push({ width, pages: await pages.count(), issues, screenshots });
+      checks.push({ width, pages: await pages.count(), requiredFixedAssetChecks: requiredAssets.length, issues, screenshots });
     }
     const passed = errors.length === 0 && checks.every(check => check.issues.length === 0);
     console.log(JSON.stringify({ passed, browser: browser.version(), errors, checks }, null, 2));

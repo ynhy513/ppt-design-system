@@ -91,6 +91,33 @@ def test_replay_can_fit_a_source_paper_to_the_full_box(design_system, tmp_path):
     assert hashes["paper.png"] == sha256((tmp_path / "paper.png").read_bytes()).hexdigest()
 
 
+def test_required_fixed_asset_rejects_a_missing_or_replaced_layer(design_system):
+    design_system["source"]["kind"] = "pptx"
+    design_system["evidence"]["main-page"]["objects"] = [10]
+    design_system["fixed_assets"] = {
+        "paper-stock": {"file": "paper.png", "sha256": "1" * 64, "evidence": "main-page"},
+        "paperclip": {"file": "clip.png", "sha256": "2" * 64, "evidence": "main-page"},
+    }
+    pattern = design_system["patterns"]["editorial"]
+    layer = {"kind": "image", "id": "note", "asset": "paper-stock", "box": [12, 30, 72, 38],
+             "fit": "fill", "position": [50, 50]}
+    pattern["layers"].append(layer)
+    pattern["required_fixed_assets"] = {"note": {"asset": "paper-stock", "purpose": "Carries the first section"}}
+    check_system(design_system)
+
+    pattern["layers"].pop()
+    with pytest.raises(ValueError, match=r"editorial/note \(paper-stock\).*Carries the first section"):
+        check_system(design_system)
+    pattern["layers"].append({**layer, "asset": "paperclip"})
+    with pytest.raises(ValueError, match="Required fixed asset missing or replaced"):
+        check_system(design_system)
+    pattern["layers"][-1] = {"kind": "box", "id": "note", "box": layer["box"], "fill": "paper"}
+    with pytest.raises(ValueError, match="Required fixed asset missing or replaced"):
+        check_system(design_system)
+    del pattern["required_fixed_assets"]
+    assert check_system(design_system)["editorial"][1] == {"title": "text"}
+
+
 def test_replay_binds_one_motif_in_two_layouts(design_system):
     overview = design_system["patterns"]["editorial"]
     design_system["motifs"]["summary"] = overview["layers"]

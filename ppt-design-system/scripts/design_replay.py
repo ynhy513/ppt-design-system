@@ -161,6 +161,15 @@ def check_system(system):
         require(pattern["background"] in system["tokens"]["colors"], f"Unknown background on {key}")
         require(all(ref in rules for ref in pattern["rules"]), f"Unknown rule on {key}")
         contracts[key] = check_layers(pattern["layers"], system, motif_slots)
+        if requirements := pattern.get("required_fixed_assets"):
+            layers = {layer["id"]: layer for layer in pattern["layers"]}
+            for layer_id, requirement in requirements.items():
+                layer = layers.get(layer_id, {})
+                expected = requirement["asset"]
+                purpose = requirement["purpose"]
+                require(purpose.strip(), f"Required fixed asset needs a purpose: {key}/{layer_id}")
+                require(layer.get("kind") == "image" and layer.get("asset") == expected,
+                        f"Required fixed asset missing or replaced: {key}/{layer_id} ({expected}) — {purpose}")
         token_names = {f'colors.{pattern["background"]}', *used_tokens(pattern["layers"], system)}
         rule_ids = {*pattern["rules"], *(system["token_rules"][name] for name in token_names)}
         pages = {evidence[ev]["page"] for ref in rule_ids for ev in rules[ref]["evidence"]}
@@ -422,6 +431,19 @@ def main():
         used_families = {system["patterns"][page["pattern"]]["family"] for page in pages}
         backdrops = {name: item["backdrop"] for name, item in system["families"].items()
                      if name in used_families and "backdrop" in item}
+        fixed_assets = system.get("fixed_assets", {})
+        page_receipts = []
+        for page in pages:
+            entry = {k: page[k] for k in ("id", "role", "pattern", "focus", "density", "weight")}
+            requirements = system["patterns"][page["pattern"]].get("required_fixed_assets")
+            if requirements:
+                entry["required_fixed_assets"] = []
+                for layer, requirement in requirements.items():
+                    asset_record = fixed_assets[requirement["asset"]]
+                    entry["required_fixed_assets"].append({
+                        "layer": layer, **requirement, "evidence": asset_record["evidence"], "sha256": asset_record["sha256"],
+                    })
+            page_receipts.append(entry)
         receipt = {
             "system_sha256": digest(args.system), "plan_sha256": digest(args.plan),
             "renderer_sha256": digest(Path(__file__)), "html_sha256": sha256(html.encode()).hexdigest(),
@@ -429,10 +451,9 @@ def main():
             "pptx_exact_media_guard": bool(args.source and system["source"]["kind"] == "pptx"),
             "asset_sha256": assets, "sequence": plan.get("sequence"),
             "source_backdrops": backdrops,
-            "source_fixed_assets": {key: item for key, item in system.get("fixed_assets", {}).items()
+            "source_fixed_assets": {key: item for key, item in fixed_assets.items()
                                     if item["file"] in assets},
-            "pages": [{k: page[k] for k in ("id", "role", "pattern", "focus", "density", "weight")}
-                      for page in pages],
+            "pages": page_receipts,
         }
         args.out.mkdir(parents=True, exist_ok=False)
         (args.out / "replay.html").write_text(html, encoding="utf-8")

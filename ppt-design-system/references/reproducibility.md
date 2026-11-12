@@ -42,3 +42,18 @@ node "$skill/scripts/audit_replay.cjs" /path/to/new-run/replay.html
 - 图片和固定背景限定在 `--assets` 根目录，离线嵌入。输出 `receipt.json` 记录设计包、分镜、渲染代码、HTML 和使用素材的 SHA-256，以及实际使用的原稿背景。浏览器检查使用本地 Playwright 与 Chromium，可通过 `REPLAY_PLAYWRIGHT_PACKAGE` 和 `REPLAY_CHROMIUM` 指定安装路径。
 - 自动检查覆盖来源地址、允许的家族和版式、字段、图层边界、槽位、顺序，以及 Chromium 中的文字碰撞、溢出和图像加载。浏览器报告记录版本和逐页截图指纹。同环境截图对比可检查重放一致性。字体文件、操作系统、浏览器版本和输出媒介改变时，重新验收。第一眼落点、证据是否支持设计推断、换图后的家族辨识度由设计评审决定。
 - 此命令接受经评审的机器包，输出 HTML 视觉样稿。网页快照、图片与 PDF 的视觉证据按[提取指南](style-guide.md)采集。
+
+## 固定原件验收
+
+在需要保留固定 PPTX 前景原件的版式下声明 `required_fixed_assets`。键为版式的顶层图片图层 ID，`asset` 对应 `fixed_assets`，`purpose` 写该图层在页面中的职责。
+
+```json
+{
+  "left-paper": {
+    "asset": "creased-paper",
+    "purpose": "承载左侧角色与约束"
+  }
+}
+```
+
+打包、编译和重放会检查该图层是否绑定指定原件。重放收据逐页记录应出现的图层、用途、证据 ID 与素材指纹。将 `receipt.json` 与 HTML 放在同一目录后运行浏览器检查，它会核对成稿图层、可见区域和实际嵌入的图片字节。报告的 `requiredFixedAssetChecks` 为每个宽度核对的数量；单独核对旧 HTML 的数量为零。另按源页与成稿对照审阅遮挡、素材角色和视觉层级。
