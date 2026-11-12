@@ -56,3 +56,19 @@ python ppt-design-system/scripts/package_design.py ./design-pack.zip
 ```
 
 命令检查目录、语法、原件和衍生件的文件指纹及来源链接。通过后生成以 `design-pack/` 为唯一根目录的 ZIP。缺文件、来源无法对应或混入生产文件时返回具体错误。用原 PPTX 校验时另在重放命令传入 `--source`。
+
+## 制作并编辑整套演示
+
+```bash
+python ppt-design-system/scripts/make_deck.py design-pack.zip confirmed-manuscript.json \
+  --assets ./content-assets --out ./first-draft
+python ppt-design-system/scripts/make_deck.py design-pack.zip confirmed-manuscript.json \
+  --assets ./content-assets --edits ./edits.json --out ./edited-draft
+```
+
+可输入已校验的设计包目录或 ZIP。文稿沿用 Reuse 的语义结构。固定素材从包内读取，可换素材从 `--assets` 读取。传入 `--source` 可再次核对原稿和固定素材。首次匹配缺口写入 `compile-report.json`，确认补足后重新执行。
+
+- `deck.html` 是可离线打开的演示和编辑入口。默认一页一屏，支持翻页及全屏。点击编辑，再点页面上的图层或从列表选择。拖动或用右下角控制点缩放，右侧可输入精确坐标、改槽位文字和替换图片。组件内文字可单独改，组件位置和大小按组处理。换图支持 6 MiB 以内的 PNG、JPEG 或 WebP。
+- 修改可存于当前浏览器。另存 HTML 会携带修改并继续可编辑。导出修改会得到 `edits.json`，可导入同一份演示，或用上面的命令重新生成 PPTX 和静态预览。重建应使用原设计包与原确认稿。源设计包和确认稿作为编辑基线。
+- `storyboard.md` 供审阅页序、任务和布局，`replay.html` 用于静态排版复核。HTML 的溢出提示检查文字槽，成稿还需看遮挡、焦点和阅读顺序。
+- PPTX 支持原生文字、形状、直线箭头、图片及组件分组。复杂曲线可用 `--html-only` 交付，原生表格和数据图表尚未接入此导出路径。保真度和字体在目标 Office 验收，打开文件、局部编辑、保存并重开是单独的检查。

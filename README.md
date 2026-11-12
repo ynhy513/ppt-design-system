@@ -14,7 +14,7 @@ Extract a reusable design pack from a reference presentation, then use it to mak
 
 The extraction delivers `STYLE.md`, `design-system.json`, `element-catalog.json`, `style-grammar.json`, and selected assets. Reuse delivers a storyboard, match report, and, when requested, a standalone HTML deck.
 
-The local Extract commands inventory PPTX, PDF and screenshot evidence and generate component coverage reports. The host agent reviews representative pages, selects artwork and writes design rules. The compiler checks neutral manuscripts against reviewed recipes, and the renderer outputs 16:9 HTML.
+The local Extract commands inventory PPTX, PDF and screenshot evidence and generate component coverage reports. The host agent reviews representative pages, selects artwork and writes design rules. The compiler checks manuscripts against reviewed recipes. [Make](ppt-design-system/references/workflow.md#制作并编辑整套演示) produces a single-slide offline player with an edit mode and a native PPTX for supported layers.
 
 ## License
 

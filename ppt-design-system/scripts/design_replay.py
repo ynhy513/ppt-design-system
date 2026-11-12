@@ -272,7 +272,7 @@ def source_media(source):
         return hashes
 
 
-def make_renderer(system, assets, original_media):
+def make_renderer(system, assets, original_media, *, asset_resolver=None):
     tokens = system["tokens"]
     colors = tokens["colors"]
     asset_hashes = {}
@@ -300,6 +300,8 @@ def make_renderer(system, assets, original_media):
             im.verify()
         asset_hashes[name] = fingerprint
         return f"data:{mime};base64,{b64encode(data).decode()}"
+
+    image_url = asset_resolver or asset
 
     def draw(layer, slots, prefix, paint=None):
         paint = paint or {}
@@ -342,9 +344,9 @@ def make_renderer(system, assets, original_media):
             image_x, image_y = layer["position"]
             if "asset" in layer:
                 fixed = system["fixed_assets"][layer["asset"]]
-                url = asset(fixed["file"], fixed["sha256"])
+                url = image_url(fixed["file"], fixed["sha256"])
             else:
-                url = asset(slots[layer["slot"]])
+                url = image_url(slots[layer["slot"]])
             return (f'<img {attr} src="{url}" alt="" style="{pos};object-fit:{layer["fit"]};'
                     f'object-position:{image_x}% {image_y}%;border-radius:{radius}">')
         bindings = layer.get("bindings", {})
@@ -359,11 +361,13 @@ def make_renderer(system, assets, original_media):
     return draw, asset, asset_hashes
 
 
-def render(system, pages, draw, asset):
+def render(system, pages, draw, asset, boxes=None):
     cards = []
     for page in pages:
         pattern = system["patterns"][page["pattern"]]
-        layers = "".join(draw(layer, page["slots"], page["id"]) for layer in pattern["layers"])
+        changes = (boxes or {}).get(page["id"], {})
+        layers = "".join(draw({**layer, "box": changes[layer["id"]]} if layer["id"] in changes else layer,
+                              page["slots"], page["id"]) for layer in pattern["layers"])
         surface = system["tokens"]["colors"][pattern["background"]]
         backdrop = system["families"][pattern["family"]].get("backdrop")
         background = ""
