@@ -4,6 +4,8 @@ Extract a reusable design pack from a reference presentation, then use it to mak
 
 把参考演示提炼成可复用的设计包，再用同一套设计做新稿。可以从 PPTX、PDF 或截图开始，交付可编辑 HTML、原生 PPTX 和 16:9 PDF。第一次使用，建议准备一份参考和一份短文稿。
 
+**[打开操作指南](docs/usage.md)** · 按模式找入口，或跟着示例从参考稿做到可编辑 PPTX 和 PDF。
+
 ## Quick start · 快速开始
 
 1. Clone or download this repository and open it in your agent's workspace.
