@@ -1,0 +1,19 @@
+[
+  {"kind": "box", "id": "root-boundary", "box": [0, 0, 100, 100], "fill": "panel", "stroke": "line", "weight": "rule", "radius": "corner"},
+  {"id": "root", "kind": "text", "box": [3, 3, 94, 14], "type": "label", "ink": "accent", "align": "left", "slot": "root"},
+  {"kind": "box", "id": "group-bg-1", "box": [2, 23, 30, 71], "fill": "surface", "stroke": "line", "weight": "rule", "radius": "corner"},
+  {"id": "group-1", "kind": "text", "box": [4, 27, 26, 15], "type": "label", "ink": "ink", "align": "left", "slot": "group-1"},
+  {"id": "group-rule-1", "kind": "line", "points": [[4, 46], [30, 46]], "stroke": "line", "weight": "rule", "arrow": false},
+  {"id": "role-1-1", "kind": "text", "box": [4, 52, 26, 17], "type": "body", "ink": "ink", "align": "left", "slot": "role-1-1"},
+  {"id": "role-1-2", "kind": "text", "box": [4, 73, 26, 17], "type": "body", "ink": "ink", "align": "left", "slot": "role-1-2"},
+  {"kind": "box", "id": "group-bg-2", "box": [35, 23, 30, 71], "fill": "surface", "stroke": "line", "weight": "rule", "radius": "corner"},
+  {"id": "group-2", "kind": "text", "box": [37, 27, 26, 15], "type": "label", "ink": "ink", "align": "left", "slot": "group-2"},
+  {"id": "group-rule-2", "kind": "line", "points": [[37, 46], [63, 46]], "stroke": "line", "weight": "rule", "arrow": false},
+  {"id": "role-2-1", "kind": "text", "box": [37, 52, 26, 17], "type": "body", "ink": "ink", "align": "left", "slot": "role-2-1"},
+  {"id": "role-2-2", "kind": "text", "box": [37, 73, 26, 17], "type": "body", "ink": "ink", "align": "left", "slot": "role-2-2"},
+  {"kind": "box", "id": "group-bg-3", "box": [68, 23, 30, 71], "fill": "surface", "stroke": "line", "weight": "rule", "radius": "corner"},
+  {"id": "group-3", "kind": "text", "box": [70, 27, 26, 15], "type": "label", "ink": "ink", "align": "left", "slot": "group-3"},
+  {"id": "group-rule-3", "kind": "line", "points": [[70, 46], [96, 46]], "stroke": "line", "weight": "rule", "arrow": false},
+  {"id": "role-3-1", "kind": "text", "box": [70, 52, 26, 17], "type": "body", "ink": "ink", "align": "left", "slot": "role-3-1"},
+  {"id": "role-3-2", "kind": "text", "box": [70, 73, 26, 17], "type": "body", "ink": "ink", "align": "left", "slot": "role-3-2"}
+]

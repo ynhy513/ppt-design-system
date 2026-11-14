@@ -104,6 +104,9 @@ def serve(args):
                                        check=True, capture_output=True, text=True, timeout=90)
                     exported = result.read_bytes()
             except (subprocess.CalledProcessError, subprocess.TimeoutExpired, FileNotFoundError) as error:
+                if isinstance(error, subprocess.CalledProcessError) and error.returncode == 2:
+                    self.error(422, "标题分行或底色与继承检查不符，请在编辑页调整：" + error.stderr.strip())
+                    return
                 print(getattr(error, "stderr", None) or str(error), file=sys.stderr)
                 self.error(500, "导出暂时失败，修改仍在编辑页。PDF 需要本机 Chromium 和 Playwright。")
                 return
@@ -126,6 +129,7 @@ def main():
     parser.add_argument("manuscript", type=Path, help="Confirmed semantic manuscript")
     parser.add_argument("--assets", type=Path, help="Replaceable content assets")
     parser.add_argument("--source", type=Path, help="Verify source and artwork")
+    parser.add_argument("--inheritance-review", type=Path, help="Check reviewed layers against the source pack")
     parser.add_argument("--edits", type=Path, help="Initial edits saved from the editor")
     parser.add_argument("--port", type=int, default=8769, help="Local editor port")
     parser.add_argument("--name", help="Download filename without extension")

@@ -9,6 +9,8 @@
 | `three-step-cycle` | 三步可回到起点，回流在文稿中明确 | `first`、`second`、`third` | 起点 → 右下 → 左下 → 起点 |
 | `paired-state-comparison` | 两种状态沿三个已知共同维度可比 | `left-heading`、`right-heading`；每行 `dimension-1`、`left-1`、`right-1`，第 2、3 行同理 | 保持同维度对齐，比较左右状态；阶段方向由文稿决定 |
 | `qualitative-matrix` | 两个明确的低／高分类轴，且每项有象限归类依据 | `x-axis`、`y-axis`、`x-low`、`x-high`、`y-low`、`y-high`；四组 `top-left-heading`、`top-left-body` 等象限槽 | 先读两个轴，再读象限与条目；象限内位置不编码数值 |
+| `nested-ownership` | 一个共同范围，三个各有两项成员的互斥分组 | `root`、`group-1` 至 `group-3`、`role-1-1` 至 `role-3-2` | 从外框读范围，由组名查组内成员 |
+| `handoff-swimlane` | 四个角色、三个阶段，每阶段至多一条同阶段的具名交接 | `lane-1` 至 `lane-4`、`phase-1` 至 `phase-3`、`action-0` 至 `action-11`；每条交接的文字用独立槽 | 阶段横读，动作按角色纵向对齐，沿箭头读发送方、接收方和交接物 |
 
 先严格匹配原包。缺口确认后，在生产副本导入需要的[标准图形](structural-components/)，用 `scripts/structural_components.py` 的 `standard_motif(component, system, styles)` 映射参考的颜色和字阶，然后在 `system["motifs"]` 登记返回的图层。以下名称是组件内的样式职责，映射值使用原包中存在的 token ID：
 
@@ -28,6 +30,12 @@ system["motifs"]["linear-flow"] = standard_motif("linear-flow", system, styles)
 示例中的 `diagram-line` 需要定义在生产副本中。复用前检查侧栏小图中的箭头是否清楚，必要时从原参考的细线样式派生更粗的图形线宽，保留原包并记录延展依据。
 
 每个图形当前提供表中的固定项数。遇到多层树、分支流程、长标签或更多节点时，先报告容量或结构缺口，再据新稿改造。用不同构图和换稿检查方向、父子归属、回流、文本、视觉风格及 PPTX 对象。
+
+### 嵌套容器与泳道的配方绑定
+
+- 嵌套容器调用 `standard_motif("nested-ownership", system, styles)`。按组绑定成员槽，样式职责为 `colors.panel/surface/accent/ink/line`、`type.label/body`、`radii.corner`、`strokes.rule`。组名与成员靠层级、边界和留白读出归属。多人或多组兼任时，可用带关系标签的树或分组表。
+- 泳道调用 `handoff_swimlane(system, styles, handoffs, ink=..., stroke=..., label_type=...)`。底图样式职责为 `colors.panel/surface/ink/line`、`type.label/body`、`radii.corner`、`strokes.rule`。动作槽按行编号，每行从左至右为三个阶段。交接记录按 `(发送动作槽, 接收动作槽, 交接物文字槽)` 传入，例如 `("action-9", "action-3", "available-window")` 表示第一阶段从第 4 行交给第 2 行。箭头根据这两个动作的位置生成。为每个交接物使用唯一的文字槽；阶段与方向变化时，按新稿重新生成连接。
+- 将返回的图层登记在制作副本的 `motifs` 中。整页仍使用现有 `motif.bindings`，在配方中登记语义字段、对应槽和该版位实测的 `limits`。泳道优先给全宽，以当前字体检查标签与箭头出口，以及长动作是否可读。跨阶段或同阶段的多条交接可考虑用角色表明确写出收发方，或单独展开该阶段。边为独立形状，移动节点后需检查端点位置。
 
 路径式流程可以用圆点、独立标签和连续曲线表达顺序，明确起终点。需要强调反馈的循环可保留清晰的前向路径，用一条独立弧线回到对应节点。参考图有环向构图时，可考虑环式画法并核对读图方向。记录选型所据的轮廓、标签位置和线条节奏。自由曲线在 HTML 和 PPTX 中共用四点的 `curve` 图层，分别为起点、两个控制点、终点。它在 PowerPoint 中是自由形状，拖动节点后需要调整曲线端点。
 

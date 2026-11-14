@@ -17,6 +17,7 @@ from zipfile import BadZipFile, ZipFile
 from jsonschema import ValidationError
 from PIL import Image
 
+from check_inherited_layout import verify_inherited_layout
 from compile_story import compile_story
 from design_replay import check_plan, check_source, check_system, load, make_renderer, render, require, source_media
 from native_deck import write_pptx
@@ -174,7 +175,6 @@ def make(args, stage, *, export_token=None):
     save_json(stage / "compile-report.json", trace)
     if plan is None:
         return False
-
     stock_photos = {photo["file"]: photo["sha256"] for photo in load(pack / MANIFEST).get("stock_photos", [])}
     model = editor_model(system, plan, grammar, trace, manuscript)
     used_stock = {}
@@ -194,6 +194,9 @@ def make(args, stage, *, export_token=None):
             originals = source_media(args.source)
     adjusted, boxes, replacements = apply_edits(plan, model, edits, originals)
     pages = check_plan(adjusted, system, check_system(system))
+    if review_path := getattr(args, "inheritance_review", None):
+        report = verify_inherited_layout(review_path, system, pages, boxes=boxes)
+        save_json(stage / "inheritance-report.json", report)
 
     _, fixed_asset, fixed_hashes = make_renderer(system, pack / "assets", set())
     _, stock_asset, stock_hashes = make_renderer(system, pack / "assets", originals)
@@ -230,6 +233,7 @@ def main():
     parser.add_argument("manuscript", type=Path, help="Confirmed semantic manuscript")
     parser.add_argument("--assets", type=Path, help="Root for replaceable content assets")
     parser.add_argument("--source", type=Path, help="Verify original source and artwork")
+    parser.add_argument("--inheritance-review", type=Path, help="Check reviewed layers against the source pack")
     parser.add_argument("--edits", type=Path, help="Edits saved from the HTML editor")
     parser.add_argument("--html-only", action="store_true", help="Skip the native export")
     parser.add_argument("--out", type=Path, required=True, help="New output directory")

@@ -1,11 +1,14 @@
+from copy import deepcopy
 from hashlib import sha256
+import json
 
 from PIL import Image
 import pytest
 
 from design_replay import check_plan, check_system, make_renderer, render
+from check_inherited_layout import check_inherited_layout, verify_inherited_layout
 from review_variants import apply_review
-from structural_components import standard_motif, variant_options
+from structural_components import handoff_swimlane, standard_motif, variant_options
 
 
 @pytest.fixture
@@ -51,6 +54,104 @@ def test_excluded_family_cannot_enter_via_a_color_token(design_system):
     design_system["token_rules"]["colors.ink"] = "guest-rule"
     with pytest.raises(ValueError, match="Excluded source evidence"):
         check_system(design_system)
+
+
+def test_inherited_layout_detects_wider_title_field_and_typography_drift(design_system):
+    original = design_system
+    original["patterns"]["editorial"]["layers"].insert(
+        0, {"kind": "box", "id": "highlight", "box": [10, 10, 80, 10], "fill": "paper"})
+    production = deepcopy(original)
+    review = {"source_pattern": "editorial", "production_pattern": "editorial",
+              "layers": {"title": {}, "highlight": {}}}
+    assert not check_inherited_layout(original, production, review)
+
+    production["patterns"]["editorial"]["layers"][0]["box"][2] += 4
+    production["tokens"]["type"]["body"].update(size=1.8, leading=1.4)
+    issues = check_inherited_layout(original, production, review)
+    assert any("highlight → highlight: box" in issue for issue in issues)
+    assert any("title → title: size" in issue for issue in issues)
+    assert any("title → title: leading" in issue for issue in issues)
+
+    review["layers"]["title"] = {"size": 1.8, "reason": "Long title variant"}
+    issues = check_inherited_layout(original, production, review)
+    assert [issue.split(": ")[0] for issue in issues] == [
+        "title → title", "highlight → highlight",
+    ]
+    assert not any("size" in issue for issue in issues)
+
+
+def test_inheritance_review_covers_used_patterns_and_guards_backdrop(design_system, tmp_path):
+    layers = design_system["patterns"]["editorial"]["layers"]
+    layers.insert(0, {"kind": "box", "id": "highlight", "box": [10, 10, 80, 10], "fill": "paper"})
+    (tmp_path / "original.json").write_text(json.dumps(design_system))
+    production = deepcopy(design_system)
+    revised = production["patterns"]["editorial"]["layers"]
+    revised[1]["box"] = [10, 10, 75, 10]
+    binding = {"box": revised[1]["box"], "reason": "Leave room for the folio"}
+    record = {
+        "source_system": "original.json",
+        "reviews": {"editorial": {"source_pattern": "editorial", "layers": {"highlight": {}, "title": binding}}},
+        "extensions": {"new-layout": "Reference has no matching layout"},
+    }
+    path = tmp_path / "review.json"
+    path.write_text(json.dumps(record))
+    page = {"id": "cover", "pattern": "editorial", "slots": {"title": "开放小站\nOpen Desk"}}
+    assert set(verify_inherited_layout(path, production, [page, {"pattern": "new-layout", "id": "interior"}])) == {
+        "editorial", "new-layout",
+    }
+    with pytest.raises(ValueError, match="Missing inheritance review for: missing"):
+        verify_inherited_layout(path, production, [page, {"pattern": "missing"}])
+    binding["lines"] = 2
+    path.write_text(json.dumps(record))
+    verify_inherited_layout(path, production, [page])
+    record["reviews"]["editorial"]["background"] = True
+    path.write_text(json.dumps(record))
+    assert verify_inherited_layout(path, production, [page])["editorial"]["background"] == "#FFFFFF"
+    production["patterns"]["editorial"]["background"] = "ink"
+    with pytest.raises(ValueError, match="background #FFFFFF → #20182C"):
+        verify_inherited_layout(path, production, [page])
+    production["patterns"]["editorial"]["background"] = "paper"
+    color_only = {"source_pattern": "editorial", "production_pattern": "editorial", "background": True, "layers": {}}
+    assert not check_inherited_layout(design_system, production, color_only)
+    production["families"]["main"]["backdrop"] = {"sha256": "a" * 64}
+    assert check_inherited_layout(design_system, production, color_only) == ["background artwork changed"]
+    del production["families"]["main"]["backdrop"]
+    verify_inherited_layout(path, production, [page], boxes={"cover": {"title": binding["box"]}})
+    with pytest.raises(ValueError, match="cover/highlight: edited box"):
+        verify_inherited_layout(path, production, [page], boxes={"cover": {"highlight": [10, 10, 90, 10]}})
+    for title in ("开放小站", "开放小站 Open Desk", "开放小站\n "):
+        with pytest.raises(ValueError, match="cover/title: expected 2 explicit non-empty text lines"):
+            verify_inherited_layout(path, production, [{**page, "slots": {"title": title}}])
+    revised[0]["fill"] = "ink"
+    with pytest.raises(ValueError, match="highlight → highlight: fill"):
+        verify_inherited_layout(path, production, [page])
+    revised.reverse()
+    with pytest.raises(ValueError, match="Relative layer order changed"):
+        verify_inherited_layout(path, production, [page])
+    del binding["reason"]
+    path.write_text(json.dumps(record))
+    with pytest.raises(ValueError, match="reviewed change requires a reason"):
+        verify_inherited_layout(path, production, [page])
+
+
+def test_inherited_image_backing_checks_crop_and_fixed_asset(design_system):
+    original = design_system
+    original["fixed_assets"] = {"paper": {"sha256": "a" * 64}, "replacement": {"sha256": "b" * 64}}
+    original["patterns"]["editorial"]["layers"].insert(0, {
+        "kind": "image", "id": "paper", "box": [10, 10, 80, 10],
+        "asset": "paper", "fit": "cover", "position": [50, 50],
+    })
+    production = deepcopy(original)
+    review = {"source_pattern": "editorial", "production_pattern": "editorial", "layers": {"paper": {}}}
+    assert not check_inherited_layout(original, production, review)
+    production["patterns"]["editorial"]["layers"][0].update(
+        asset="replacement", fit="contain", position=[20, 50],
+    )
+    assert check_inherited_layout(original, production, review) == [
+        "paper → paper: fit cover → contain",
+        "paper → paper: position [50, 50] → [20, 50]",
+        "paper → paper: fixed artwork changed",
+    ]
 
 
 def test_structural_variant_review_preserves_chapter_and_blocks_failed_selection(design_system):
@@ -139,6 +240,42 @@ def test_consulting_structures_preserve_columns_and_axes(design_system):
     assert slots["x-low"]["box"][0] < slots["x-high"]["box"][0]
     assert slots["y-high"]["box"][1] < slots["y-low"]["box"][1]
     assert all(not layer.get("arrow") for layer in (*paired, *matrix))
+
+
+def test_ownership_and_swimlane_keep_membership_and_handoff_direction(design_system):
+    design_system["tokens"]["radii"]["corner"] = 0.4
+    design_system["tokens"]["strokes"]["rule"] = 2
+    styles = {
+        "colors": {"panel": "paper", "surface": "paper", "ink": "ink", "line": "ink"},
+        "type": {"label": "body", "body": "body"},
+        "radii": {"corner": "corner"},
+        "strokes": {"rule": "rule"},
+    }
+    nested = standard_motif("nested-ownership", design_system,
+                            {**styles, "colors": {**styles["colors"], "accent": "ink"}})
+    boxes = {layer["id"]: layer["box"] for layer in nested if "box" in layer}
+    for group in range(1, 4):
+        x, y, width, height = boxes[f"group-bg-{group}"]
+        for j in (1, 2):
+            mx, my, mw, mh = boxes[f"role-{group}-{j}"]
+            assert x <= mx and mx + mw <= x + width
+            assert y <= my and my + mh <= y + height
+
+    def lane(handoffs):
+        return handoff_swimlane(design_system, styles, handoffs, ink="ink",
+                                stroke="rule", label_type="body")
+
+    for start, end in ((9, 3), (3, 9)):
+        layers = {layer["id"]: layer for layer in lane([(f"action-{start}", f"action-{end}", "receipt")])}
+        for action, edge, index in ((start, "receipt-edge-0", 0), (end, "receipt-edge-2", 1)):
+            x, y, width, height = layers[f"action-bg-{action}"]["box"]
+            assert layers[edge]["points"][index] == [x + width, y + height / 2]
+        assert [layer["id"] for layer in layers.values() if layer.get("arrow")] == ["receipt-edge-2"]
+        assert layers["receipt"]["slot"] == "receipt"
+    with pytest.raises(ValueError, match="one same-stage handoff"):
+        lane([("action-0", "action-1", "receipt")])
+    with pytest.raises(ValueError, match="one same-stage handoff"):
+        lane([("action-0", "action-3", "first"), ("action-3", "action-6", "second")])
 
 
 def test_sequence_blocks_wrong_focus_or_strength(design_system):

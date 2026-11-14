@@ -108,6 +108,8 @@ def write_pptx(system, pages, boxes, asset, output):
                 run = para.add_run()
                 run.text = row[a:b]
                 run.font.name, run.font.bold = font, style["weight"] >= 600
+                if style.get("italic"):
+                    run.font.italic = True
                 run.font.size = Pt(font_width / 12700 * style["size"] / 100)
                 run.font.color.rgb = color(layer["ink"], paint)
                 if start >= 0 and start <= offset + a < end:

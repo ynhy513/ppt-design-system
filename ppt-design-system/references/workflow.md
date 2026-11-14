@@ -82,6 +82,8 @@ python ppt-design-system/scripts/make_deck.py design-pack.zip confirmed-manuscri
 
 可输入已校验的设计包目录或 ZIP。文稿沿用 Reuse 的语义结构。固定素材从包内读取，可换素材从 `--assets` 读取，已登记的随包照片可用 `pack:文件名` 填入可换图片槽。传入 `--source` 可再次核对原稿和固定素材。首次匹配缺口写入 `compile-report.json`，确认补足后重新执行。
 
+复用参考设计时，制作和本地编辑命令均传入 `--inheritance-review inherited-layout.json`，见[复验清单](page-composition.md#检查沿用的标题与强调图层)。
+
 - `deck.html` 是可离线打开的演示和编辑入口。默认一页一屏，支持翻页及全屏。点击编辑，再点页面上的图层或从列表选择。拖动或用右下角控制点缩放，右侧可输入精确坐标、改槽位文字和替换图片。组件内文字可单独改，组件位置和大小按组处理。换图支持 6 MiB 以内的 PNG、JPEG 或 WebP。
 - 修改可存于当前浏览器。另存 HTML 会携带修改并继续可编辑。导出修改会得到 `edits.json`，可导入同一份演示，或用上面的命令重新生成 PPTX 和静态预览。重建应使用原设计包与原确认稿。源设计包和确认稿作为编辑基线。
 - `storyboard.md` 供审阅页序、任务和布局，`replay.html` 用于静态排版复核。HTML 的溢出提示检查文字槽，成稿还需看遮挡、焦点和阅读顺序。
@@ -97,3 +99,5 @@ python ppt-design-system/scripts/serve_deck.py design-pack.zip confirmed-manuscr
 打开命令给出的本机链接即可开始编辑。右上角「导出」可下载当前稿的可编辑 PPTX 和 16:9 PDF，也可另存可离线编辑的 HTML。左右位置和宽高按画幅百分比填写。「撤销」可恢复最近一次拖动、缩放、文字编辑、换图、重置或导入。
 
 导出以点击时的编辑状态为准。PPTX 复用原生制作路径，PDF 使用 Chromium 输出一张幻灯片一页。PDF 需按前文安装 Node.js、Playwright 与 Chromium，也可设置 `REPLAY_PLAYWRIGHT_PACKAGE`、`REPLAY_CHROMIUM`，并用 `--node` 指定 Node.js。编辑页在服务运行期间可用，默认地址为 `http://127.0.0.1:8769/`。另存的单文件 HTML 可离线编辑，直接导出 PPTX/PDF 使用本机编辑入口。
+
+传入 `--inheritance-review` 后，PDF 导出还会按实际打印排版核对已登记的分行和底色。发现偏差时，编辑页会指出对应页面和图层，保留当前修改供调整。

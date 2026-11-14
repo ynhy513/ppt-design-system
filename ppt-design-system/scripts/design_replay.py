@@ -337,7 +337,8 @@ def make_renderer(system, assets, original_media, *, asset_resolver=None):
                 before, phrase, after = value.partition(phrase)
                 content = (f'{escape(before)}<u style="text-underline-offset:.12em;'
                            f'text-decoration-thickness:.052em">{escape(phrase)}</u>{escape(after)}')
-            style = (f'{pos};font:{t["weight"]} {t["size"]}cqw/{t["leading"]} {t["font"]};'
+            slant = "italic " if t.get("italic") else ""
+            style = (f'{pos};font:{slant}{t["weight"]} {t["size"]}cqw/{t["leading"]} {t["font"]};'
                      f'color:{color("ink")};text-align:{layer["align"]}')
             return f'<div class="text" {attr} style="{style}"><span>{content}</span></div>'
         if kind == "image":

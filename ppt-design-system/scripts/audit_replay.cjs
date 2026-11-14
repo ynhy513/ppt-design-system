@@ -1,19 +1,14 @@
 /* Check actual Chromium output without loading the network or writing screenshots. */
 const { createHash } = require('node:crypto');
-const { readFileSync } = require('node:fs');
-const { dirname, resolve } = require('node:path');
+const { resolve } = require('node:path');
 const { pathToFileURL } = require('node:url');
+const { checkRenderedInheritance, readOptionalReport } = require('./replay_inheritance.cjs');
 
 function readFixedAssetRequirements(input) {
-  try {
-    const receipt = JSON.parse(readFileSync(resolve(dirname(resolve(input)), 'receipt.json'), 'utf8'));
-    return receipt.pages.flatMap(page => (page.required_fixed_assets || []).map(asset => ({
-      ...asset, page: page.id,
-    })));
-  } catch (error) {
-    if (error.code === 'ENOENT') return [];
-    throw error;
-  }
+  const receipt = readOptionalReport(input, 'receipt.json');
+  return (receipt.pages || []).flatMap(page => (page.required_fixed_assets || []).map(asset => ({
+    ...asset, page: page.id,
+  })));
 }
 
 async function checkFixedAssets(page, requirements) {
@@ -48,6 +43,7 @@ async function main() {
     throw new Error('Usage: node audit_replay.cjs /path/to/replay.html');
   }
   const requiredAssets = readFixedAssetRequirements(input);
+  const inheritance = readOptionalReport(input, 'inheritance-report.json');
   const { chromium } = require(process.env.REPLAY_PLAYWRIGHT_PACKAGE || 'playwright');
   const browser = await chromium.launch({
     executablePath: process.env.REPLAY_CHROMIUM,
@@ -114,6 +110,7 @@ async function main() {
         if (document.documentElement.scrollWidth > window.innerWidth) issues.push('Horizontal page overflow');
         return issues;
       });
+      issues.push(...await checkRenderedInheritance(pages, inheritance));
       issues.push(...await checkFixedAssets(page, requiredAssets));
       const screenshots = {};
       if (!issues.length && width === 1200) {

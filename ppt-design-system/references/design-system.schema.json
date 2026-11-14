@@ -70,6 +70,7 @@
               "font": {"type": "string", "pattern": "^[a-zA-Z0-9 ,_-]+$", "maxLength": 150},
               "size": {"type": "number", "minimum": 1, "maximum": 18},
               "weight": {"enum": [400, 500, 600, 700]},
+                "italic": {"type": "boolean"},
               "leading": {"type": "number", "minimum": 1, "maximum": 2}
             }
           }
