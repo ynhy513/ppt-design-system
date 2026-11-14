@@ -120,7 +120,8 @@ def scan_source(source, out):
             require(suffix in IMAGE_SUFFIXES, "Expected PPTX, PDF, PNG, JPEG or WebP")
             kind, objects = "image", []
             with Image.open(source) as image:
-                require(image.format in IMAGE_FORMATS and image.n_frames == 1, "Expected a single screenshot")
+                require(image.format in IMAGE_FORMATS and getattr(image, "n_frames", 1) == 1,
+                        "Expected a single screenshot")
                 image.verify()
                 catalog["tokens"]["raster-frame"] = {"kind": "raster-frame",
                                                       "value": {"pixel_size": list(image.size),

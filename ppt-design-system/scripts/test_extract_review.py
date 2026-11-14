@@ -43,6 +43,16 @@ def test_flat_raster_scan_does_not_make_up_assets_or_recipe_matches(tmp_path):
     assert assessed["status"] == "adapt" and assessed["match"] is None
 
 
+def test_scan_accepts_a_single_jpeg_without_frame_metadata(tmp_path):
+    source = tmp_path / "reference.jpg"
+    Image.new("RGB", (12, 8)).save(source, format="JPEG")
+    output = tmp_path / "scan"
+    output.mkdir()
+    catalog, manifest = scan_source(source, output)
+    assert catalog["tokens"]["raster-frame"]["value"] == {"pixel_size": [12, 8], "format": "JPEG"}
+    assert manifest["objects"] == []
+
+
 def test_partial_coverage_still_validates_matched_slots(design_system):
     catalog = {"version": 1, "pages": 2, "source_sha256": "0" * 64,
                "objects": {"p1-text": {"page": 1, "tokens": ["type"]}}, "tokens": {"type": {}}}
