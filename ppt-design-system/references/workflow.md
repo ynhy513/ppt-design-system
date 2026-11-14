@@ -15,12 +15,23 @@ python ppt-design-system/scripts/style_catalog.py reference.pptx --out element-c
 
 ```bash
 python ppt-design-system/scripts/extract_review.py scan reference.pptx --out extract-scan
+python ppt-design-system/scripts/extract_review.py scan reference.pdf --image-context image-context.json --out extract-with-context
 python ppt-design-system/scripts/extract_review.py assess extract-scan --pack baseline.zip --out baseline-review
 python ppt-design-system/scripts/extract_review.py assess extract-scan --pack completed.zip \
   --baseline baseline.zip --review decisions.json --out completed-review
 ```
 
 两步都输出 `asset-inventory.md`、`component-coverage.md` 和 `component-coverage.json`。用新的输出目录保留每轮结果。扫描阶段同时生成 `element-catalog.json` 和 `assets/assets-manifest.json`，供挑选入包的原件和区域。PPTX 扫描可见幻灯片对象树中的内嵌图，保留对象实例、包内地址和裁切。PDF 按绘制实例导出图流，原件按指纹去重，另记区域、滤镜和解码或掩码依赖。截图只登记整张图的像素证据，后续可登记裁切及重建件。母版独有的对象、链接资源、PDF 矢量绘图和截图内分层需要结合原稿另行审阅。
+
+扫描同时写出 `image-decisions.md` 和 `image-decisions.json`，`assess` 会复制同一来源的扫描结果。报告覆盖所有页，逐对象记录来源图注、建议、理由和不确定项。PDF 初判使用可配对的「IMAGE AT TOP / IMAGE BELOW」或「上图 / 下图」图注及流程线索，PPTX 可按原生图表和表格对象判断重绘。无法配对的图注、截图、语义不明的照片或插画留待看图判断。
+
+`--image-context` 只填**新文稿需要表达的主体**，无需预填处理决定。用原 PDF 的 1 起算物理页码和左上起算的百分比框 `[x, y, width, height]` 把目标关联到源区域。可加 `purpose` 说明用途。必须呈现特定艺术作品时填 `identity_required: true`。目标重叠且无法唯一关联时仍需核对。
+
+```json
+{"regions":[{"page":7,"region":[0,0,50,45],"subject":"Gulf Islands National Seashore","purpose":"Show regional orientation"}]}
+```
+
+复用建议以主体、原件、裁切和许可都满足为前提。目标主体与图注未匹配时，报告会提醒可能存在别名；它只产生[搜图建议](photo-sourcing.md)，不执行下载或替换。艺术延展、重绘和流程节点也仍需在成稿复核。
 
 默认探测双向闭环和三阶段行动验收。用 `--probe` 指定其他中性语义稿，首轮及补足轮使用同一份。若设计包规定全稿顺序，语义稿也须指定该顺序。扫描表的初始状态是待人工核对。评估通过正式编译器验证现有配方，并记录槽位容量与独立图形绑定。目录和 ZIP 均可输入。待改造或延展的人工判断用章节 ID、目录证据 ID 和一句说明登记。
 

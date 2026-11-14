@@ -12,6 +12,7 @@ from PIL import Image
 
 from compile_story import check_manuscript, compile_story
 from design_replay import digest, load, reject_constant, reject_duplicates, require
+from image_decisions import ACTIONS, image_report, pdf_signals
 from package_design import MANIFEST, ZIP_ROOT, check_directory, check_zip
 from style_catalog import catalog as pptx_catalog
 
@@ -40,7 +41,7 @@ def table(headers, rows):
     return "\n".join([line(headers), line(["---"] * len(headers)), *(line(row) for row in rows)])
 
 
-def pdf_inventory(source, assets, catalog):
+def pdf_inventory(source, assets, catalog, signals):
     import pdfplumber
     from pdfminer.pdfexceptions import PDFException
     from pdfminer.pdftypes import PDFStream, resolve1
@@ -71,6 +72,7 @@ def pdf_inventory(source, assets, catalog):
             catalog["pages"] = len(pdf.pages)
             require(catalog["pages"] > 0, "PDF contains no pages")
             for page in pdf.pages:
+                start = len(objects)
                 for index, image in enumerate(page.images, 1):
                     stream = image["stream"]
                     masks = [resolve1(stream.attrs[key]) for key in ("SMask", "Mask") if key in stream.attrs]
@@ -99,15 +101,17 @@ def pdf_inventory(source, assets, catalog):
                     catalog["objects"][identifier] = {**obj, "tokens": token_ids}
                     objects.append({"id": identifier, **obj, "media": media,
                                     "status": "exported" if media else "no-embedded-image"})
+                signals[page.page_number] = pdf_signals(page, objects[start:])
                 page.close()
     except PDFException as error:
         raise ValueError(f"Cannot read PDF image evidence: {error}") from error
     return objects
 
 
-def scan_source(source, out):
+def scan_source(source, out, *, image_context=None, context_sha=None):
     assets = out / "assets"
     suffix = source.suffix.lower()
+    signals = {}
     if suffix == ".pptx":
         catalog = pptx_catalog(source, assets_out=assets)
         kind, manifest = "pptx", load(assets / "assets-manifest.json")
@@ -115,7 +119,7 @@ def scan_source(source, out):
         assets.mkdir()
         catalog = {"version": 1, "source_sha256": digest(source), "pages": 1, "objects": {}, "tokens": {}}
         if suffix == ".pdf":
-            kind, objects = "pdf", pdf_inventory(source, assets, catalog)
+            kind, objects = "pdf", pdf_inventory(source, assets, catalog, signals)
         else:
             require(suffix in IMAGE_SUFFIXES, "Expected PPTX, PDF, PNG, JPEG or WebP")
             kind, objects = "image", []
@@ -133,7 +137,26 @@ def scan_source(source, out):
         save_json(assets / "assets-manifest.json", manifest)
     catalog["source_kind"] = kind
     save_json(out / "element-catalog.json", catalog)
+    decisions = image_report(catalog, manifest, signals, image_context, context_sha)
+    save_json(out / "image-decisions.json", decisions)
+    (out / "image-decisions.md").write_text(image_decisions_markdown(decisions), encoding="utf-8")
     return catalog, manifest
+
+
+def image_decisions_markdown(report):
+    lines = ["# 逐页图像判断", "", f"来源 SHA-256 `{report['source_sha256']}`", "",
+             "自动初判依据是源文件图注、独立对象、矢量线索和可选的新稿目标主体。"
+             "可复用候选仍需核对画面、许可和裁切。没有可用线索的图片保留为待核对。", ""]
+    for page in report["pages"]:
+        lines.extend([f"## 第 {page['page']} 页", ""])
+        if not page["decisions"]:
+            lines.extend(["未发现可自动判定的图像或结构线索。可结合页面预览补充。", ""])
+            continue
+        lines.extend([table(("对象", "源图注", "新稿主体", "建议", "理由", "不确定项"), (
+            (row["object"] or "页级结构", row["caption"] or "—",
+             row["target"]["subject"] if row["target"] else "—", ACTIONS[row["action"]], row["reason"],
+             " ".join(row["uncertainty"])) for row in page["decisions"])), ""])
+    return "\n".join(lines)
 
 
 def inventory_markdown(catalog, manifest):
@@ -280,6 +303,7 @@ def main():
     subcommands = parser.add_subparsers(dest="command", required=True)
     scan = subcommands.add_parser("scan", help="Extract source media and write initial coverage")
     scan.add_argument("source", type=Path)
+    scan.add_argument("--image-context", type=Path, help="Optional target subjects by source-page region")
     assess = subcommands.add_parser("assess", help="Reassess coverage with a reviewed design pack")
     assess.add_argument("scan", type=Path, help="Output directory of the scan command")
     assess.add_argument("--pack", type=Path, required=True, help="Reviewed design pack directory or ZIP")
@@ -298,7 +322,9 @@ def main():
             out = Path(temporary) / "result"
             out.mkdir()
             if args.command == "scan":
-                catalog, manifest = scan_source(args.source, out)
+                context = load(args.image_context) if args.image_context else None
+                catalog, manifest = scan_source(args.source, out, image_context=context,
+                                                context_sha=digest(args.image_context) if args.image_context else None)
                 report = coverage(catalog, probe, digest(args.probe))
             else:
                 scan_catalog = load(args.scan / "element-catalog.json")
@@ -308,6 +334,13 @@ def main():
                 before = read_pack(args.baseline, scan_catalog, probe)[0] if args.baseline else None
                 review = load(args.review) if args.review else None
                 report = coverage(catalog, probe, digest(args.probe), matches, before, review)
+                decisions = args.scan / "image-decisions.json"
+                if decisions.is_file():
+                    image_actions = load(decisions)
+                    require(image_actions["source_sha256"] == scan_catalog["source_sha256"],
+                            "Image decisions do not describe the scanned source")
+                    save_json(out / "image-decisions.json", image_actions)
+                    (out / "image-decisions.md").write_text(image_decisions_markdown(image_actions), encoding="utf-8")
             (out / "asset-inventory.md").write_text(inventory_markdown(catalog, manifest), encoding="utf-8")
             save_json(out / "component-coverage.json", report)
             (out / "component-coverage.md").write_text(coverage_markdown(report), encoding="utf-8")
