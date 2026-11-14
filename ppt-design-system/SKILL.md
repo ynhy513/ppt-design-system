@@ -25,6 +25,8 @@ Run the first match against the manuscript's actual relationships. For gaps, rep
 
 Recheck [image roles](references/image-roles.md) against the new manuscript. A photo slot may deserve a different treatment when the same layout supports a different story. Record the intended role and placement in the storyboard before sourcing or extending.
 
+When the manuscript needs a linear flow, a hierarchy, or a cycle that the reference pack cannot express, use the [standard structural components](references/structural-components.md) as the first extension candidate. Choose the topology from the relationship in the manuscript, map the component to reviewed style tokens, and bind it as a shared motif in the working copy. Keep the strict gap and record the structural component as an extension.
+
 Test the candidate with a second manuscript that expresses the same relationship. Review slot fit and meaning, then decide whether to keep it in production or promote it to a new version of the design pack. Preserve the input pack and its existing recipes. A legacy pack missing its grammar needs a source-backed grammar before it can enter this mode.
 
 For a **multi-page visual storyboard**, read [visual storyboard planning](references/visual-storyboard.md). Use an existing `STYLE.md` if supplied, and check the reference for evidence gaps that affect the plan. In visual-only mode, replace the content dry run with a sequence of page roles and placeholder slots. Return the plan in the reply by default. Treat writing the manuscript, rendering previews, and exporting decks or HTML as separate requests.

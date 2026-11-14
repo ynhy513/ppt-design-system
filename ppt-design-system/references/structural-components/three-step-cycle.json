@@ -1,0 +1,137 @@
+[
+  {
+    "kind": "line",
+    "id": "first-to-second",
+    "points": [
+      [
+        62,
+        30
+      ],
+      [
+        76.5,
+        63
+      ]
+    ],
+    "stroke": "edge",
+    "weight": "connector",
+    "arrow": true
+  },
+  {
+    "kind": "line",
+    "id": "second-to-third",
+    "points": [
+      [
+        64,
+        77
+      ],
+      [
+        37,
+        77
+      ]
+    ],
+    "stroke": "edge",
+    "weight": "connector",
+    "arrow": true
+  },
+  {
+    "kind": "line",
+    "id": "third-to-first",
+    "points": [
+      [
+        23,
+        64
+      ],
+      [
+        37.1,
+        31
+      ]
+    ],
+    "stroke": "edge",
+    "weight": "connector",
+    "arrow": true
+  },
+  {
+    "kind": "box",
+    "id": "first-box",
+    "box": [
+      37,
+      5,
+      26,
+      23
+    ],
+    "fill": "strong",
+    "radius": "corner",
+    "stroke": "edge",
+    "weight": "outline"
+  },
+  {
+    "kind": "text",
+    "id": "first-label",
+    "slot": "first",
+    "box": [
+      39,
+      6,
+      22,
+      21
+    ],
+    "type": "node",
+    "ink": "inverse",
+    "align": "center"
+  },
+  {
+    "kind": "box",
+    "id": "second-box",
+    "box": [
+      65,
+      66,
+      26,
+      23
+    ],
+    "fill": "panel",
+    "radius": "corner",
+    "stroke": "edge",
+    "weight": "outline"
+  },
+  {
+    "kind": "text",
+    "id": "second-label",
+    "slot": "second",
+    "box": [
+      67,
+      67,
+      22,
+      21
+    ],
+    "type": "node",
+    "ink": "text",
+    "align": "center"
+  },
+  {
+    "kind": "box",
+    "id": "third-box",
+    "box": [
+      9,
+      66,
+      26,
+      23
+    ],
+    "fill": "panel",
+    "radius": "corner",
+    "stroke": "edge",
+    "weight": "outline"
+  },
+  {
+    "kind": "text",
+    "id": "third-label",
+    "slot": "third",
+    "box": [
+      11,
+      67,
+      22,
+      21
+    ],
+    "type": "node",
+    "ink": "text",
+    "align": "center"
+  }
+]

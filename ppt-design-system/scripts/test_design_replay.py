@@ -4,6 +4,7 @@ from PIL import Image
 import pytest
 
 from design_replay import check_plan, check_system, make_renderer, render
+from structural_components import standard_motif
 
 
 @pytest.fixture
@@ -49,6 +50,36 @@ def test_excluded_family_cannot_enter_via_a_color_token(design_system):
     design_system["token_rules"]["colors.ink"] = "guest-rule"
     with pytest.raises(ValueError, match="Excluded source evidence"):
         check_system(design_system)
+
+
+def test_standard_structures_keep_slots_and_directed_connections_when_styled(design_system):
+    design_system["tokens"]["radii"]["card"] = 6
+    design_system["tokens"]["strokes"]["solid"] = 2
+    styles = {
+        "colors": {"strong": "ink", "inverse": "paper", "panel": "paper",
+                   "text": "ink", "edge": "ink"},
+        "type": {"node": "body"},
+        "radii": {"corner": "card"},
+        "strokes": {"outline": "solid", "connector": "solid"},
+    }
+    chain = ["first-to-second", "second-to-third"]
+    cases = [
+        ("linear-flow", ["first", "second", "third"], chain, 2),
+        ("hierarchy-tree", ["parent", "left", "middle", "right"], [], 5),
+        ("three-step-cycle", ["first", "second", "third"], chain + ["third-to-first"], 3),
+    ]
+    for name, slots, arrows, connector_count in cases:
+        layers = standard_motif(name, design_system, styles)
+        assert [layer["slot"] for layer in layers if layer["kind"] == "text"] == slots
+        assert [layer["id"] for layer in layers if layer.get("arrow")] == arrows
+        assert sum(layer["kind"] == "line" for layer in layers) == connector_count
+        assert [layer["fill"] for layer in layers if layer["kind"] == "box"] == (
+            ["ink"] + ["paper"] * (len(slots) - 1)
+        )
+    with pytest.raises(ValueError, match="Style roles do not match"):
+        standard_motif("linear-flow", design_system, {**styles, "strokes": {}})
+    with pytest.raises(ValueError, match="Unknown radius token"):
+        standard_motif("linear-flow", design_system, {**styles, "radii": {"corner": "missing"}})
 
 
 def test_sequence_blocks_wrong_focus_or_strength(design_system):

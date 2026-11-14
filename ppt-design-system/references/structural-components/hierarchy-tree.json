@@ -1,0 +1,194 @@
+[
+  {
+    "kind": "line",
+    "id": "parent-stem",
+    "points": [
+      [
+        50,
+        35
+      ],
+      [
+        50,
+        51
+      ]
+    ],
+    "stroke": "edge",
+    "weight": "connector"
+  },
+  {
+    "kind": "line",
+    "id": "child-bus",
+    "points": [
+      [
+        15,
+        51
+      ],
+      [
+        85,
+        51
+      ]
+    ],
+    "stroke": "edge",
+    "weight": "connector"
+  },
+  {
+    "kind": "line",
+    "id": "left-branch",
+    "points": [
+      [
+        15,
+        51
+      ],
+      [
+        15,
+        66
+      ]
+    ],
+    "stroke": "edge",
+    "weight": "connector"
+  },
+  {
+    "kind": "line",
+    "id": "middle-branch",
+    "points": [
+      [
+        50,
+        51
+      ],
+      [
+        50,
+        66
+      ]
+    ],
+    "stroke": "edge",
+    "weight": "connector"
+  },
+  {
+    "kind": "line",
+    "id": "right-branch",
+    "points": [
+      [
+        85,
+        51
+      ],
+      [
+        85,
+        66
+      ]
+    ],
+    "stroke": "edge",
+    "weight": "connector"
+  },
+  {
+    "kind": "box",
+    "id": "parent-box",
+    "box": [
+      35,
+      7,
+      30,
+      28
+    ],
+    "fill": "strong",
+    "radius": "corner",
+    "stroke": "edge",
+    "weight": "outline"
+  },
+  {
+    "kind": "text",
+    "id": "parent-label",
+    "slot": "parent",
+    "box": [
+      37,
+      8,
+      26,
+      26
+    ],
+    "type": "node",
+    "ink": "inverse",
+    "align": "center"
+  },
+  {
+    "kind": "box",
+    "id": "left-box",
+    "box": [
+      3,
+      66,
+      24,
+      28
+    ],
+    "fill": "panel",
+    "radius": "corner",
+    "stroke": "edge",
+    "weight": "outline"
+  },
+  {
+    "kind": "text",
+    "id": "left-label",
+    "slot": "left",
+    "box": [
+      5,
+      67,
+      20,
+      26
+    ],
+    "type": "node",
+    "ink": "text",
+    "align": "center"
+  },
+  {
+    "kind": "box",
+    "id": "middle-box",
+    "box": [
+      38,
+      66,
+      24,
+      28
+    ],
+    "fill": "panel",
+    "radius": "corner",
+    "stroke": "edge",
+    "weight": "outline"
+  },
+  {
+    "kind": "text",
+    "id": "middle-label",
+    "slot": "middle",
+    "box": [
+      40,
+      67,
+      20,
+      26
+    ],
+    "type": "node",
+    "ink": "text",
+    "align": "center"
+  },
+  {
+    "kind": "box",
+    "id": "right-box",
+    "box": [
+      73,
+      66,
+      24,
+      28
+    ],
+    "fill": "panel",
+    "radius": "corner",
+    "stroke": "edge",
+    "weight": "outline"
+  },
+  {
+    "kind": "text",
+    "id": "right-label",
+    "slot": "right",
+    "box": [
+      75,
+      67,
+      20,
+      26
+    ],
+    "type": "node",
+    "ink": "text",
+    "align": "center"
+  }
+]

@@ -1,6 +1,6 @@
 # 标准组件库 v0.1
 
-首版覆盖八个组件家族，共 25 项。状态以 Artsy、Wikimedia 两套截图包和项目本地 HTML 生成证据为准。颜色、字阶与图形样式随参考风格确定。新设计包按实际用途选用组件并记录覆盖缺口。
+目前覆盖八个组件家族。使用原有截图包的复用试验和对应的生成证据标记状态。颜色、字阶与图形样式随参考风格确定。新设计包按实际用途选用组件并记录覆盖缺口。
 
 ## 分层
 
@@ -36,7 +36,9 @@
 | Visual | 封面主视觉 · Hero Image | 主体、图像角色、裁切和可读区 | **整页绑定** · Wikimedia 封面使用已重建的蓝墨背景。 |
 | Visual | 图片网格 · Image Grid | 多个可换图片槽、次序与主体裁切规则 | **待延展** · 已有色块网格可提供布局依据。 |
 | Visual | 图标组 · Icon Group | 图标语义、对应标签、适用条件 | **待延展** · 需验证换图标后仍能表达同一职责。 |
-| Relationship | 流程阶段 · Process Flow | 阶段、顺序、交接或依赖 | **整页绑定** · Artsy `mosaic-three-stages` 已表达固定三阶段演进，分支和依赖待延展。 |
+| Relationship | 流程阶段 · Process Flow | 阶段、顺序、交接或依赖 | [标准结构](structural-components.md)提供三步直线流程。Artsy `mosaic-three-stages` 是已有整页版式。 |
+| Relationship | 层级 · Hierarchy | 一个上级与各自归属明确的下级 | [标准结构](structural-components.md)提供一层上级、三项直属下级。 |
+| Relationship | 循环 · Cycle | 循环中的有序节点和明确的回到起点关系 | [标准结构](structural-components.md)提供三步循环，区别于双向反馈闭环。 |
 | Relationship | 双向反馈闭环 · Feedback Loop | 两方、两条相反的流、共同结果、各方约束 | **独立复用** · Wikimedia `two-way-feedback` 通过总览和侧栏换稿；Artsy 仍使用整页闭环配方。 |
 | Relationship | 维度矩阵 · Matrix | 维度、对应内容及共用对齐关系 | **整页绑定** · Wikimedia `white-ruled-framework` 是两行说明与四项维度的固定组合。 |
 | Relationship | 三阶段行动与验收 · Action Checkpoints | 三个有序阶段，每阶段含一项行动和一个验收条件 | **独立复用** · Wikimedia `three-action-checkpoints` 通过总览和侧栏换稿；Artsy 仍使用三列整页配方。 |
@@ -48,4 +50,4 @@
 | Emphasis | 短语高亮 · Phrase Highlight | 原文中唯一的强调片段 | **整页绑定** · Wikimedia `flush-three-colors` 与 `white-ruled-framework` 的下划线槽。 |
 | Emphasis | 指向性标注 · Annotation | 注释、对应对象或区域、连接关系 | **待延展** · 需验证裁切或换位后标注仍指向原对象。 |
 
-两个已独立复用组件的字段和项数见[组件覆盖约定](component-coverage.md#起始组件约定)。其余条目的内容约定用于选型和延展评审。提升复用状态前，核对第二种构图、换稿、容量边界和视觉层级。
+双向反馈闭环与三阶段行动与验收的字段和项数见[组件覆盖约定](component-coverage.md#起始组件约定)。三种标准图形的字段和接入方法见[标准结构组件](structural-components.md)。提升复用状态前，核对第二种构图、换稿、容量边界和视觉层级。
