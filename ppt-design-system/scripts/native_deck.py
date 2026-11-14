@@ -11,8 +11,6 @@ from pptx.enum.text import MSO_ANCHOR, MSO_AUTO_SIZE, PP_ALIGN
 from pptx.oxml.xmlchemy import OxmlElement
 from pptx.util import Inches, Pt
 
-from design_replay import require
-
 
 def write_pptx(system, pages, boxes, asset, output):
     deck = Presentation()
@@ -57,6 +55,32 @@ def write_pptx(system, pages, boxes, asset, output):
     def line_style(obj, layer, paint, region_width):
         obj.line.color.rgb = color(layer["stroke"], paint)
         obj.line.width = Pt(region_width / 12700 * tokens["strokes"][layer["weight"]] / 1600)
+
+    def freeform_curve(shapes, points):
+        xs, ys = zip(*points)
+        left, top = min(xs), min(ys)
+        w, h = max(1, max(xs) - left), max(1, max(ys) - top)
+        obj = shapes.add_shape(MSO_SHAPE.RECTANGLE, left, top, w, h)
+        obj.fill.background()
+        shape_props = obj._element.spPr
+        geometry = OxmlElement("a:custGeom")
+        path_list = OxmlElement("a:pathLst")
+        path = OxmlElement("a:path")
+        path.set("w", str(w))
+        path.set("h", str(h))
+        path.set("fill", "none")
+        for command, vertices in (("moveTo", points[:1]), ("cubicBezTo", points[1:])):
+            segment = OxmlElement(f"a:{command}")
+            for x, y in vertices:
+                point = OxmlElement("a:pt")
+                point.set("x", str(x - left))
+                point.set("y", str(y - top))
+                segment.append(point)
+            path.append(segment)
+        path_list.append(path)
+        geometry.append(path_list)
+        shape_props.replace(shape_props.prstGeom, geometry)
+        return obj
 
     def text(shapes, layer, bounds, slots, paint, font_width):
         obj = shapes.add_textbox(*emu(bounds))
@@ -104,9 +128,11 @@ def write_pptx(system, pages, boxes, asset, output):
                 draw(obj.shapes, part, {k: slots[v] for k, v in bindings.items()}, nested,
                      font_width if bindings else nested[2], layer.get("paint", {}))
         elif kind in {"line", "curve"}:
-            require(kind == "line", f"Native PPTX does not support curve {identifier}; use --html-only")
-            points = [frame([x, y, 0, 0], region)[:2] for x, y in layer["points"]]
-            obj = shapes.add_connector(MSO_CONNECTOR.STRAIGHT, *emu(points[0] + points[1]))
+            points = [emu(frame([x, y, 0, 0], region)[:2]) for x, y in layer["points"]]
+            if kind == "curve":
+                obj = freeform_curve(shapes, points)
+            else:
+                obj = shapes.add_connector(MSO_CONNECTOR.STRAIGHT, *(points[0] + points[1]))
             line_style(obj, layer, paint, region[2])
             if layer.get("arrow"):
                 tail = OxmlElement("a:tailEnd")
@@ -137,7 +163,7 @@ def write_pptx(system, pages, boxes, asset, output):
                 if "radius" in layer:
                     obj._element.spPr.prstGeom.set("prst", "roundRect")
             obj.rotation = layer.get("rotation", 0)
-        if kind in {"line", "box"}:
+        if kind in {"line", "curve", "box"}:
             for theme_style in obj._element.xpath("./p:style"):
                 obj._element.remove(theme_style)
         obj.name = identifier

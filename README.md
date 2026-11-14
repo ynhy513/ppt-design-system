@@ -48,7 +48,7 @@ python ppt-design-system/scripts/make_deck.py design-pack.zip manuscript.json \
   --assets ./content-assets --out ./first-draft
 ```
 
-PPTX 当前支持可编辑文字、图片、基础形状、直线箭头和组件分组。原生表格和数据图表尚未接入。另存的单文件 HTML 可离线继续编辑，页面内直接下载 PPTX 和 PDF 需要启动本机编辑入口。 [输出范围与复核](ppt-design-system/references/workflow.md#制作并编辑整套演示)
+PPTX 当前支持可编辑文字、图片、基础形状、直线箭头、单段三次 Bézier 自由曲线和组件分组。原生表格和数据图表尚未接入。另存的单文件 HTML 可离线继续编辑，页面内直接下载 PPTX 和 PDF 需要启动本机编辑入口。 [输出范围与复核](ppt-design-system/references/workflow.md#制作并编辑整套演示)
 
 ## Use cases · 使用案例
 

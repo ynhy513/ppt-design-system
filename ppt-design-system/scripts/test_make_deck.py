@@ -3,8 +3,33 @@ from io import BytesIO
 
 from PIL import Image
 import pytest
+from pptx import Presentation
 
 from make_deck import apply_edits
+from native_deck import write_pptx
+
+
+def test_native_curve_preserves_control_points_and_arrow(tmp_path):
+    curve = {"kind": "curve", "id": "return-arc", "stroke": "ink", "weight": "edge", "arrow": True,
+             "points": [[75, 20], [75, 60], [25, 60], [25, 20]]}
+    system = {
+        "tokens": {"colors": {"paper": "#FFFFFF", "ink": "#222222"}, "radii": {}, "strokes": {"edge": 5}},
+        "families": {"main": {}},
+        "patterns": {"cycle": {"family": "main", "background": "paper", "layers": [curve]}},
+    }
+    file = tmp_path / "curve.pptx"
+    write_pptx(system, [{"id": "page", "pattern": "cycle", "slots": {}}], {}, None, file)
+    deck = Presentation(file)
+    shape = deck.slides[0].shapes[0]
+    path = shape._element.xpath("./p:spPr/a:custGeom/a:pathLst/a:path")[0]
+    assert shape.name == "return-arc"
+    assert path.get("fill") == "none"
+    assert [(int(p.get("x")), int(p.get("y"))) for p in path.xpath(".//a:pt")] == [
+        (deck.slide_width // 2, 0), (deck.slide_width // 2, deck.slide_height * 2 // 5),
+        (0, deck.slide_height * 2 // 5), (0, 0),
+    ]
+    assert len(path.xpath("./a:cubicBezTo/a:pt")) == 3
+    assert shape._element.xpath("./p:spPr/a:ln/a:tailEnd")[0].get("type") == "triangle"
 
 
 def test_edits_are_page_specific_and_keep_the_confirmed_manuscript():

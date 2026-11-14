@@ -39,7 +39,7 @@
 3. 从右上角「导出」选「可编辑 PPTX」或「PDF」。两种格式都取点击时的编辑状态。打开 PPTX 检查关键文字、图片和组件能否继续加工，打开 PDF 检查页序和裁切。
 4. 如果要把网页带走，选「另存 HTML」。该文件带着修改，双击即可离线播放和编辑。直接下载 PPTX 和 PDF 使用本机编辑页，PDF 导出还需要 Node.js、Playwright 和 Chromium。
 
-PPTX 支持文字、图片、基础形状、直线箭头和组件分组。复杂曲线可走 HTML 或 PDF，原生表格和图表暂未接入。 [本机启动与导出命令](../ppt-design-system/references/workflow.md#在编辑页直接导出)
+PPTX 支持文字、图片、基础形状、直线箭头、单段三次 Bézier 自由曲线和组件分组。原生表格和图表暂未接入。 [本机启动与导出命令](../ppt-design-system/references/workflow.md#在编辑页直接导出)
 
 ## 跟着做一次 · 三章十页的图书归还试点
 
