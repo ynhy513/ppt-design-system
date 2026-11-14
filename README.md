@@ -28,6 +28,8 @@ Extract a reusable design pack from a reference presentation, then use it to mak
 
 首次提取时，扫描会先登记可获取的素材和来源证据。Agent 结合页面预览确认素材角色、版式和组件覆盖，再整理成可复用的设计包。后续换稿可沿用同一个设计包。 [提取与打包说明](ppt-design-system/references/workflow.md#自动生成素材清单和覆盖表)
 
+照片型参考的原图不够清晰时，Agent 可以按图片槽的题材、留字区和构图，用中英文关键词从国内外来源找图，核对裁切后的尺寸和许可。允许分发的照片可以随设计包调用。 [搜图与素材复用](ppt-design-system/references/photo-sourcing.md)
+
 ### Run locally · 本机制作
 
 有了设计包和确认后的语义文稿，就可以启动编辑页。普通文稿可先交给 Agent，字段结构见[语义稿示例](ppt-design-system/references/coverage-probe.json)。

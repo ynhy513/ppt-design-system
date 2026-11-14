@@ -175,6 +175,11 @@ def inventory_markdown(catalog, manifest):
         output += ["", "## 衍生件", "", table(("文件", "来源", "处理", "角色"), (
             (d["file"], "、".join(d.get("sources", []) + d.get("evidence", [])),
              d["treatment"], d.get("role", "待判定")) for d in derivatives))]
+    if photos := manifest.get("stock_photos", []):
+        output += ["", "## 随包复用的外部照片", "", table(
+            ("文件", "作者", "作品页", "许可", "角色", "摆放和裁切", "分发依据"),
+            ((photo["file"], photo["creator"], photo["source_url"], photo["license_url"],
+              photo["role"], photo["reuse"], photo["distribution_basis"]) for photo in photos))]
     return "\n".join(output) + "\n"
 
 

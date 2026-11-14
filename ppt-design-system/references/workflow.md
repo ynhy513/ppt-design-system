@@ -49,6 +49,7 @@ python ppt-design-system/scripts/style_catalog.py reference.pptx --out element-c
 - 转格式、裁切或合成的渲染件同样放进 `assets/`。在清单的 `derivatives` 中登记 `file`、衍生件 `sha256`、源对象 ID 数组 `sources` 和 `treatment`。如果源材料只能按页定位，可用 `evidence` 数组指向设计系统的证据 ID。PPTX 衍生件引用到可独立导出的图片对象时，清单要登记其原件并一并随包。
 - 固定素材使用衍生图时，`fixed_assets` 的 `file` 和 `sha256` 对应渲染件，并填 `source_sha256` 指向证据对象原图。渲染器分别核对原件与渲染件。固定素材直接使用原图时保留现有字段即可。
 - 复用新稿的产品图等内容素材随生产目录交付，通过文稿媒体槽引用。
+- 截图素材不够清晰时，按[中英文搜图与授权核对](photo-sourcing.md)寻找高清原件。经核对可随设计包分发的外部照片登记在清单的 `stock_photos`，并在 Make 的图片字段用 `pack:文件名` 调用。仅当前项目可用的照片按实际交付媒介使用，通过 `--assets` 读取，设计包只留槽位与作品链接。
 
 ```bash
 python ppt-design-system/scripts/package_design.py ./design-pack --out ./design-pack.zip
@@ -68,7 +69,7 @@ python ppt-design-system/scripts/make_deck.py design-pack.zip confirmed-manuscri
   --assets ./content-assets --edits ./edits.json --out ./edited-draft
 ```
 
-可输入已校验的设计包目录或 ZIP。文稿沿用 Reuse 的语义结构。固定素材从包内读取，可换素材从 `--assets` 读取。传入 `--source` 可再次核对原稿和固定素材。首次匹配缺口写入 `compile-report.json`，确认补足后重新执行。
+可输入已校验的设计包目录或 ZIP。文稿沿用 Reuse 的语义结构。固定素材从包内读取，可换素材从 `--assets` 读取，已登记的随包照片可用 `pack:文件名` 填入可换图片槽。传入 `--source` 可再次核对原稿和固定素材。首次匹配缺口写入 `compile-report.json`，确认补足后重新执行。
 
 - `deck.html` 是可离线打开的演示和编辑入口。默认一页一屏，支持翻页及全屏。点击编辑，再点页面上的图层或从列表选择。拖动或用右下角控制点缩放，右侧可输入精确坐标、改槽位文字和替换图片。组件内文字可单独改，组件位置和大小按组处理。换图支持 6 MiB 以内的 PNG、JPEG 或 WebP。
 - 修改可存于当前浏览器。另存 HTML 会携带修改并继续可编辑。导出修改会得到 `edits.json`，可导入同一份演示，或用上面的命令重新生成 PPTX 和静态预览。重建应使用原设计包与原确认稿。源设计包和确认稿作为编辑基线。

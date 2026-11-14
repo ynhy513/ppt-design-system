@@ -4,7 +4,9 @@ import argparse
 from hashlib import sha256
 import json
 from pathlib import Path, PurePosixPath
+import re
 from stat import S_ISLNK
+from urllib.parse import urlsplit
 from zipfile import BadZipFile, ZIP_DEFLATED, ZipFile
 
 from jsonschema import ValidationError
@@ -15,6 +17,8 @@ from design_replay import check_system
 ROOT_FILES = {"STYLE.md", "design-system.json", "element-catalog.json", "style-grammar.json"}
 MANIFEST = "assets/assets-manifest.json"
 ZIP_ROOT = "design-pack/"
+PHOTO_FIELDS = ("file", "sha256", "creator", "source_url", "license", "license_url", "role",
+                "reuse", "distribution_basis")
 
 
 def safe_path(name):
@@ -102,6 +106,28 @@ def validate_pack(names, read):
                 errors.append(f"Derivative requires a registered original: {file}/{object_id}")
         derivatives[file] = source_ids
 
+    source_files = set(declared)
+    photos = manifest.get("stock_photos", [])
+    if not isinstance(photos, list):
+        errors.append("stock_photos must be an array")
+        photos = []
+    for photo in photos:
+        if not isinstance(photo, dict) or not all(
+                isinstance(photo.get(field), str) and photo[field].strip() for field in PHOTO_FIELDS):
+            errors.append("Stock photo needs a file, fingerprint, creator, provenance, role and distribution basis")
+            continue
+        file = photo["file"]
+        if file in declared:
+            errors.append(f"Duplicate or overlapping stock photo: {file}")
+            continue
+        if (not re.fullmatch(r"[a-f0-9]{64}", photo["sha256"])
+                or Path(file).suffix.lower() not in {".jpg", ".jpeg", ".png", ".webp"}
+                or not all((url := urlsplit(photo[key])).scheme == "https" and url.hostname
+                           for key in ("source_url", "license_url"))):
+            errors.append(f"Invalid stock photo fingerprint, format or source URL: {file}")
+            continue
+        register(photo)
+
     for file, fingerprint in sorted(declared.items()):
         name = f"assets/{file}"
         if name not in names:
@@ -112,7 +138,7 @@ def validate_pack(names, read):
                if name.startswith("assets/") and name[7:] not in declared]
 
     def check_reference(asset):
-        if declared.get(asset["file"]) != asset["sha256"]:
+        if asset["file"] not in source_files or declared[asset["file"]] != asset["sha256"]:
             errors.append(f"Design asset has no matching manifest entry: {asset['file']}")
 
     for family in system["families"].values():

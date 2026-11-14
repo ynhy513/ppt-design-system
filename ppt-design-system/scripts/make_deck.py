@@ -20,7 +20,7 @@ from PIL import Image
 from compile_story import compile_story
 from design_replay import check_plan, check_source, check_system, load, make_renderer, render, require, source_media
 from native_deck import write_pptx
-from package_design import ZIP_ROOT, check_directory, check_zip
+from package_design import MANIFEST, ZIP_ROOT, check_directory, check_zip
 
 
 HERE = Path(__file__).resolve().parent
@@ -175,7 +175,17 @@ def make(args, stage, *, export_token=None):
     if plan is None:
         return False
 
+    stock_photos = {photo["file"]: photo["sha256"] for photo in load(pack / MANIFEST).get("stock_photos", [])}
     model = editor_model(system, plan, grammar, trace, manuscript)
+    used_stock = {}
+    for page in model["pages"].values():
+        for layer in page["layers"]:
+            if layer["kind"] == "image" and (value := page["slots"][layer["slot"]]).startswith("pack:"):
+                file = value.removeprefix("pack:")
+                require(file in stock_photos, f"Image is not a registered stock photo: {file}")
+                used_stock[file] = stock_photos[file]
+    if used_stock:
+        model["base"] = sha256(snapshot([model["base"], used_stock]).encode()).hexdigest()
     edits = load(args.edits) if args.edits else empty_edits(model)
     originals = set()
     if args.source:
@@ -186,12 +196,15 @@ def make(args, stage, *, export_token=None):
     pages = check_plan(adjusted, system, check_system(system))
 
     _, fixed_asset, fixed_hashes = make_renderer(system, pack / "assets", set())
+    _, stock_asset, stock_hashes = make_renderer(system, pack / "assets", originals)
     _, content_asset, content_hashes = make_renderer(system, args.assets, originals)
     def asset(name, expected_sha256=None, *, backdrop=False):
         if expected_sha256 is not None:
             return fixed_asset(name, expected_sha256, backdrop=backdrop)
         if name in replacements:
             return replacements[name]
+        if name.startswith("pack:"):
+            return stock_asset(name.removeprefix("pack:"))
         return content_asset(name)
 
     draw, _, _ = make_renderer(system, None, set(), asset_resolver=asset)
@@ -205,7 +218,8 @@ def make(args, stage, *, export_token=None):
     if not args.html_only:
         write_pptx(system, pages, boxes, asset, stage / "deck.pptx")
     save_json(stage / "make-report.json", {"pages": len(pages), "base": model["base"],
-              "native_pptx": not args.html_only, "fixed_assets": fixed_hashes, "content_assets": content_hashes,
+              "native_pptx": not args.html_only, "fixed_assets": fixed_hashes, "stock_photos": stock_hashes,
+              "content_assets": content_hashes,
               "edited_pages": list(edits["pages"])})
     return True
 
