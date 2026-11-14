@@ -1,0 +1,18 @@
+[
+  {"kind": "box", "id": "left-header", "box": [24, 2, 35, 14], "fill": "left-field"},
+  {"kind": "box", "id": "right-header", "box": [61, 2, 38, 14], "fill": "right-field"},
+  {"kind": "text", "id": "left-heading", "slot": "left-heading", "box": [27, 3, 30, 11], "type": "heading", "ink": "left-ink", "align": "left"},
+  {"kind": "text", "id": "right-heading", "slot": "right-heading", "box": [64, 3, 32, 11], "type": "heading", "ink": "right-ink", "align": "left"},
+  {"kind": "line", "id": "row-1", "points": [[0, 45], [99, 45]], "stroke": "edge", "weight": "rule"},
+  {"kind": "text", "id": "dimension-1", "slot": "dimension-1", "box": [1, 23, 21, 21], "type": "heading", "ink": "text", "align": "left"},
+  {"kind": "text", "id": "left-1", "slot": "left-1", "box": [27, 23, 30, 21], "type": "body", "ink": "text", "align": "left"},
+  {"kind": "text", "id": "right-1", "slot": "right-1", "box": [64, 23, 34, 21], "type": "body", "ink": "text", "align": "left"},
+  {"kind": "line", "id": "row-2", "points": [[0, 70], [99, 70]], "stroke": "edge", "weight": "rule"},
+  {"kind": "text", "id": "dimension-2", "slot": "dimension-2", "box": [1, 48, 21, 21], "type": "heading", "ink": "text", "align": "left"},
+  {"kind": "text", "id": "left-2", "slot": "left-2", "box": [27, 48, 30, 21], "type": "body", "ink": "text", "align": "left"},
+  {"kind": "text", "id": "right-2", "slot": "right-2", "box": [64, 48, 34, 21], "type": "body", "ink": "text", "align": "left"},
+  {"kind": "line", "id": "row-3", "points": [[0, 95], [99, 95]], "stroke": "edge", "weight": "rule"},
+  {"kind": "text", "id": "dimension-3", "slot": "dimension-3", "box": [1, 73, 21, 21], "type": "heading", "ink": "text", "align": "left"},
+  {"kind": "text", "id": "left-3", "slot": "left-3", "box": [27, 73, 30, 21], "type": "body", "ink": "text", "align": "left"},
+  {"kind": "text", "id": "right-3", "slot": "right-3", "box": [64, 73, 34, 21], "type": "body", "ink": "text", "align": "left"}
+]

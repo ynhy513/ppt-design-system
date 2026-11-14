@@ -6,7 +6,8 @@ from design_replay import TOKEN_GROUPS, check_layers, load, require
 
 
 LIBRARY = Path(__file__).resolve().parents[1] / "references/structural-components"
-COMPONENTS = ("linear-flow", "hierarchy-tree", "three-step-cycle")
+COMPONENTS = ("linear-flow", "hierarchy-tree", "three-step-cycle",
+              "paired-state-comparison", "qualitative-matrix")
 
 
 def variant_options(component):

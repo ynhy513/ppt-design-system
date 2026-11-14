@@ -7,6 +7,8 @@
 | `linear-flow` | 三步线性过程 | `first`、`second`、`third` | 第一 → 第二 → 第三 |
 | `hierarchy-tree` | 一个上级与三个同级直属项 | `parent`、`left`、`middle`、`right` | 自上而下，三项共用连接横线 |
 | `three-step-cycle` | 三步可回到起点，回流在文稿中明确 | `first`、`second`、`third` | 起点 → 右下 → 左下 → 起点 |
+| `paired-state-comparison` | 两种状态沿三个已知共同维度可比 | `left-heading`、`right-heading`；每行 `dimension-1`、`left-1`、`right-1`，第 2、3 行同理 | 保持同维度对齐，比较左右状态；阶段方向由文稿决定 |
+| `qualitative-matrix` | 两个明确的低／高分类轴，且每项有象限归类依据 | `x-axis`、`y-axis`、`x-low`、`x-high`、`y-low`、`y-high`；四组 `top-left-heading`、`top-left-body` 等象限槽 | 先读两个轴，再读象限与条目；象限内位置不编码数值 |
 
 先严格匹配原包。缺口确认后，在生产副本导入需要的[标准图形](structural-components/)，用 `scripts/structural_components.py` 的 `standard_motif(component, system, styles)` 映射参考的颜色和字阶，然后在 `system["motifs"]` 登记返回的图层。以下名称是组件内的样式职责，映射值使用原包中存在的 token ID：
 

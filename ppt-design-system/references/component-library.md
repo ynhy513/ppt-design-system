@@ -40,14 +40,14 @@
 | Relationship | 层级 · Hierarchy | 一个上级与各自归属明确的下级 | [标准结构](structural-components.md)提供一层上级、三项直属下级。 |
 | Relationship | 循环 · Cycle | 循环中的有序节点和明确的回到起点关系 | [标准结构](structural-components.md)提供三步循环，区别于双向反馈闭环。 |
 | Relationship | 双向反馈闭环 · Feedback Loop | 两方、两条相反的流、共同结果、各方约束 | **独立复用** · Wikimedia `two-way-feedback` 通过总览和侧栏换稿；Artsy 仍使用整页闭环配方。 |
-| Relationship | 维度矩阵 · Matrix | 维度、对应内容及共用对齐关系 | **整页绑定** · Wikimedia `white-ruled-framework` 是两行说明与四项维度的固定组合。 |
+| Relationship | 维度矩阵 · Matrix | 两个有意义的分类轴、象限、各项归类依据 | [标准结构](structural-components.md)提供定性双轴矩阵；Wikimedia 另有整页维度归类配方。 |
 | Relationship | 三阶段行动与验收 · Action Checkpoints | 三个有序阶段，每阶段含一项行动和一个验收条件 | **独立复用** · Wikimedia `three-action-checkpoints` 通过总览和侧栏换稿；Artsy 仍使用三列整页配方。 |
 | Comparison | 两项对照 · Paired Comparison | 两个同级对象、共同维度、各自证据 | **整页绑定** · Wikimedia `white-paired-evidence`，Artsy `paired-finding-bands`。 |
-| Comparison | 前后对照 · Before / After | 同一对象的前后状态、时间点、变化依据 | **待延展** · 可从两项对照继承对齐规则，并补前后顺序与基准。 |
+| Comparison | 同维度状态对照 · Paired State Comparison | 两种状态、各自的值或描述、共同维度 | [标准结构](structural-components.md)提供三维度双列对照。仅当原稿说明是前后阶段时表达推进。 |
 | Navigation | 页码 · Page Number | 页码或用户批准的页序 | **整页绑定** · 白底总览和侧栏版式各自声明 `folio` 槽。 |
 | Navigation | 目录与章节导航 · Agenda / Section Marker | 章节名、顺序或当前章节 | **整页绑定** · Artsy `split-numbered-outline` 提供固定三项的编号式目录结构。 |
 | Emphasis | 短句强调 · Callout | 一句要突出的说明及其语境 | **整页绑定** · Wikimedia `blue-print-cover` 以蓝底短句承担辅助论点。 |
 | Emphasis | 短语高亮 · Phrase Highlight | 原文中唯一的强调片段 | **整页绑定** · Wikimedia `flush-three-colors` 与 `white-ruled-framework` 的下划线槽。 |
 | Emphasis | 指向性标注 · Annotation | 注释、对应对象或区域、连接关系 | **待延展** · 需验证裁切或换位后标注仍指向原对象。 |
 
-双向反馈闭环与三阶段行动与验收的字段和项数见[组件覆盖约定](component-coverage.md#起始组件约定)。三种标准图形的字段和接入方法见[标准结构组件](structural-components.md)。提升复用状态前，核对第二种构图、换稿、容量边界和视觉层级。
+双向反馈闭环与三阶段行动与验收的字段和项数见[组件覆盖约定](component-coverage.md#起始组件约定)。标准图形的字段和接入方法见[标准结构组件](structural-components.md)。提升复用状态前，核对第二种构图、换稿、容量边界和视觉层级。

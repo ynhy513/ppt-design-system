@@ -114,6 +114,33 @@ def test_standard_structures_keep_slots_and_directed_connections_when_styled(des
         standard_motif("linear-flow", design_system, {**styles, "radii": {"corner": "missing"}})
 
 
+def test_consulting_structures_preserve_columns_and_axes(design_system):
+    design_system["tokens"]["strokes"]["guide"] = 2
+    typography = {"heading": "body", "body": "body"}
+    base = {"type": typography, "strokes": {"rule": "guide"}}
+    paired = standard_motif("paired-state-comparison", design_system, {
+        **base, "colors": {"text": "ink", "edge": "ink", "left-field": "paper", "right-field": "paper",
+                           "left-ink": "ink", "right-ink": "ink"},
+    })
+    slots = {layer["slot"]: layer for layer in paired if "slot" in layer}
+    assert len(slots) == 11
+    for row in range(1, 4):
+        left, right = slots[f"left-{row}"]["box"], slots[f"right-{row}"]["box"]
+        assert left[0] + left[2] < right[0] and left[1] == right[1]
+
+    corners = ("top-left", "top-right", "bottom-left", "bottom-right")
+    matrix = standard_motif("qualitative-matrix", design_system, {
+        **base, "type": {**typography, "label": "body"},
+        "colors": {"text": "ink", "edge": "ink", **dict.fromkeys((f"{corner}-field" for corner in corners), "paper"),
+                   **dict.fromkeys((f"{corner}-ink" for corner in corners), "ink")},
+    })
+    slots = {layer["slot"]: layer for layer in matrix if "slot" in layer}
+    assert len(slots) == 14
+    assert slots["x-low"]["box"][0] < slots["x-high"]["box"][0]
+    assert slots["y-high"]["box"][1] < slots["y-low"]["box"][1]
+    assert all(not layer.get("arrow") for layer in (*paired, *matrix))
+
+
 def test_sequence_blocks_wrong_focus_or_strength(design_system):
     step = {"patterns": ["editorial"], "focus": "title", "weight": "high", "density": "low"}
     design_system["sequences"] = {"review": [step, step]}
