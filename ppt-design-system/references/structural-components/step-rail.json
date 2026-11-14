@@ -1,0 +1,10 @@
+[
+  {"kind": "line", "id": "first-to-second", "points": [[17, 53], [47, 53]], "stroke": "edge", "weight": "connector", "arrow": true},
+  {"kind": "line", "id": "second-to-third", "points": [[52, 53], [82, 53]], "stroke": "edge", "weight": "connector", "arrow": true},
+  {"kind": "box", "id": "first-node", "box": [13, 48.7, 4, 8.6], "radius": "corner", "fill": "first-marker"},
+  {"kind": "text", "id": "first-label", "slot": "first", "box": [2, 64, 26, 13], "type": "node", "ink": "text", "align": "center"},
+  {"kind": "box", "id": "second-node", "box": [48, 48.7, 4, 8.6], "radius": "corner", "fill": "second-marker"},
+  {"kind": "text", "id": "second-label", "slot": "second", "box": [37, 64, 26, 13], "type": "node", "ink": "text", "align": "center"},
+  {"kind": "box", "id": "third-node", "box": [83, 48.7, 4, 8.6], "radius": "corner", "fill": "third-marker"},
+  {"kind": "text", "id": "third-label", "slot": "third", "box": [72, 64, 26, 13], "type": "node", "ink": "text", "align": "center"}
+]

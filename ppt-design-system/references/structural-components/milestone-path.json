@@ -1,0 +1,10 @@
+[
+  {"kind": "curve", "id": "first-to-second", "points": [[15, 63], [25, 63], [38, 38], [50, 38]], "stroke": "edge", "weight": "connector", "arrow": false},
+  {"kind": "curve", "id": "second-to-third", "points": [[50, 38], [67, 38], [73, 58], [92, 49]], "stroke": "edge", "weight": "connector", "arrow": true},
+  {"kind": "box", "id": "first-node", "box": [13, 58.7, 4, 8.6], "radius": "corner", "fill": "first-marker"},
+  {"kind": "text", "id": "first-label", "slot": "first", "box": [2, 75, 26, 13], "type": "node", "ink": "text", "align": "center"},
+  {"kind": "box", "id": "second-node", "box": [48, 33.7, 4, 8.6], "radius": "corner", "fill": "second-marker"},
+  {"kind": "text", "id": "second-label", "slot": "second", "box": [37, 14, 26, 13], "type": "node", "ink": "text", "align": "center"},
+  {"kind": "box", "id": "third-node", "box": [83, 47.7, 4, 8.6], "radius": "corner", "fill": "third-marker"},
+  {"kind": "text", "id": "third-label", "slot": "third", "box": [72, 65, 26, 13], "type": "node", "ink": "text", "align": "center"}
+]

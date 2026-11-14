@@ -27,6 +27,8 @@ Recheck [image roles](references/image-roles.md) against the new manuscript. A p
 
 When the manuscript needs a linear flow, a hierarchy, or a cycle that the reference pack cannot express, use the [standard structural components](references/structural-components.md) as the first extension candidate. Choose the topology from the relationship in the manuscript, map the component to reviewed style tokens, and bind it as a shared motif in the working copy. Keep the strict gap and record the structural component as an extension.
 
+For a flow or cycle extension where the drawing can affect what readers notice, follow the [rendered variant review](references/structural-components.md#画法选型和成片评审). Compare two applicable drawings against the same copy and reference evidence. Use the existing recipe `variant` field to bind the winner after reviewing both rendered pages.
+
 Test the candidate with a second manuscript that expresses the same relationship. Review slot fit and meaning, then decide whether to keep it in production or promote it to a new version of the design pack. Preserve the input pack and its existing recipes. A legacy pack missing its grammar needs a source-backed grammar before it can enter this mode.
 
 For a **multi-page visual storyboard**, read [visual storyboard planning](references/visual-storyboard.md). Use an existing `STYLE.md` if supplied, and check the reference for evidence gaps that affect the plan. In visual-only mode, replace the content dry run with a sequence of page roles and placeholder slots. Return the plan in the reply by default. Treat writing the manuscript, rendering previews, and exporting decks or HTML as separate requests.

@@ -9,9 +9,15 @@ LIBRARY = Path(__file__).resolve().parents[1] / "references/structural-component
 COMPONENTS = ("linear-flow", "hierarchy-tree", "three-step-cycle")
 
 
-def standard_motif(component, system, styles):
+def variant_options(component):
+    return load(LIBRARY / "variants.json").get(component, {})
+
+
+def standard_motif(component, system, styles, *, variant=None):
     require(component in COMPONENTS, f"Unknown standard component: {component}")
-    layers = load(LIBRARY / f"{component}.json")
+    require(variant is None or variant in variant_options(component),
+            f"Unsupported drawing variant for {component}: {variant}")
+    layers = load(LIBRARY / f"{variant or component}.json")
     roles = {(TOKEN_GROUPS[field], value) for layer in layers for field, value in layer.items()
              if field in TOKEN_GROUPS}
     require(isinstance(styles, dict) and all(isinstance(values, dict) for values in styles.values())

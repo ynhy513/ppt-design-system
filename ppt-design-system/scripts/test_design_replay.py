@@ -4,7 +4,8 @@ from PIL import Image
 import pytest
 
 from design_replay import check_plan, check_system, make_renderer, render
-from structural_components import standard_motif
+from review_variants import apply_review
+from structural_components import standard_motif, variant_options
 
 
 @pytest.fixture
@@ -50,6 +51,37 @@ def test_excluded_family_cannot_enter_via_a_color_token(design_system):
     design_system["token_rules"]["colors.ink"] = "guest-rule"
     with pytest.raises(ValueError, match="Excluded source evidence"):
         check_system(design_system)
+
+
+def test_structural_variant_review_preserves_chapter_and_blocks_failed_selection(design_system):
+    design_system["tokens"]["radii"]["dot"] = 8
+    design_system["tokens"]["strokes"]["edge"] = 4
+    styles = {
+        "colors": dict.fromkeys(("first-marker", "second-marker", "third-marker", "edge", "text"), "ink"),
+        "type": {"node": "body"}, "radii": {"corner": "dot"}, "strokes": {"connector": "edge"},
+    }
+    for relation, curves in (("linear-flow", [0, 2]), ("three-step-cycle", [1, 3])):
+        for variant, expected in zip(variant_options(relation), curves, strict=True):
+            layers = standard_motif(relation, design_system, styles, variant=variant)
+            assert [layer["slot"] for layer in layers if layer["kind"] == "text"] == ["first", "second", "third"]
+            assert sum(layer["kind"] == "curve" for layer in layers) == expected
+    with pytest.raises(ValueError, match="Unsupported drawing variant"):
+        standard_motif("linear-flow", design_system, styles, variant="ring-cycle")
+
+    chapter = {"id": "intro", "relation": "linear-flow", "intent": "Explain the sequence",
+               "fields": {"first": "Check", "second": "Record", "third": "Release"}, "items": []}
+    manuscript = {"version": 1, "chapters": [chapter]}
+    review = {"intro": {
+        "selected": "milestone-path", "evidence": ["main-page"], "reason": "The reference uses a continuous path.",
+        "candidates": {variant: {"render": variant + ".png", "observation": "Labels remain legible",
+                                 "checks": {"relation": True, "readability": True, "editable": True}}
+                       for variant in variant_options("linear-flow")},
+    }}
+    assert apply_review(manuscript, design_system, review)["chapters"] == [{**chapter, "variant": "milestone-path"}]
+    assert "variant" not in manuscript["chapters"][0]
+    review["intro"]["candidates"]["milestone-path"]["checks"]["editable"] = False
+    with pytest.raises(ValueError, match="Selected variant has a failed check"):
+        apply_review(manuscript, design_system, review)
 
 
 def test_standard_structures_keep_slots_and_directed_connections_when_styled(design_system):
