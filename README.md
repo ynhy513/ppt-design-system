@@ -52,6 +52,10 @@ PPTX 当前支持可编辑文字、图片、基础形状、直线箭头、单段
 
 ## Use cases · 使用案例
 
+- **同一份新稿适配两套公开模板。** 用虚构的社区高温应对试点做四轮选版，逐轮完成提取、选版和导出。两套模板都核对了冻结源包的前后重放。
+  - **Colorado State University · System Fonts。** 比较顶栏三列与侧栏三列。两轮各 5 页，六项检查拆成两页，每页 3 项。侧栏版保留更明显的品牌色带，顶栏版给正文更宽的栏位。 [公开模板来源](https://brand.colostate.edu/templates/)
+  - **Purdue Polytechnic · Gold Widescreen。** 比较白底正文与金底强调页。两轮各 4 页，六项检查都用一页承载。PPTX 写入原字族和字号比例，浏览器用替代字体渲染了 Franklin Gothic 文字。 [公开模板来源](https://polytechnic.purdue.edu/office-marketing-communications/toolbox-guides/templates)
+  - 四份修正稿共 18 页，通过 1200 px 和 390 px 的 Chromium 排版检查，导出可编辑 HTML、原生文字 PPTX 和 16:9 PDF。Purdue 的一份试验副本在 Mac PowerPoint 中修改标题、保存并重开成功。
 - **冻结原版，再为新文稿选版。** 用 Texas A&M University 公开的 Duotone PPTX 重放原文，再用独立的长标题和双栏版式制作 5 页虚构的传感器借用简报。核对字号比例、标题衬底和底色，换稿前后的原包 HTML 与浏览器截图一致。 [公开模板来源](https://marcomm.tamu.edu/template/presentation-templates/)
 - **判断混排报告里的图片怎么处理。** 扫描 14 页美国国家公园管理局公开 PDF。加入新稿的目标地点后，一张照片由复用候选改为搜图，语义不明的对象保留待核对。 [逐页图像判断流程](ppt-design-system/references/workflow.md#自动生成素材清单和覆盖表)
 - **把关系图交给同事继续编辑。** 用虚构文稿测试不同视觉风格的流程、循环、层级、泳道和甘特图。Mac PowerPoint 实测流程节点改字、甘特条改宽、回流曲线改色后保存重开。 [结构组件与选型](ppt-design-system/references/structural-components.md)
@@ -66,11 +70,19 @@ PPTX 当前支持可编辑文字、图片、基础形状、直线箭头、单段
 
 ## What's new · 本次更新
 
+- **Extract** 为空白 PPTX 占位符记录来自版式和母版文本样式的首级字号、字体、字重、斜体和对齐候选，落稿时可结合实际渲染核对。 [提取与证据采集](ppt-design-system/references/workflow.md)
+- **Reuse** 在编译报告中记录入选配方的密度、各槽实填字符数和上限，便于追踪拆页和选版取舍。容量用于初筛，文字是否装得下以渲染为准。 [配方与编译报告](ppt-design-system/references/element-compilation.md#运行)
+- **Make** 启用继承检查后，PDF 导出会在打印状态检查文字是否超出槽位，过滤行尾空格误报。发现越界时指出页和图层，保留当前编辑供调整后重试。 [编辑与导出](ppt-design-system/references/workflow.md#在编辑页直接导出)
+
+本轮回归验证了四份旧版可导出的越界稿均会被拦截，修正后可以重新导出。27 项 Python 测试和 Chromium 打印回归通过。
+
+### Earlier updates · 此前更新
+
 - **Extract** 逐页记录复用、搜图、延展、重绘或待核对的建议，附来源证据、理由和不确定项。 [图片职责](ppt-design-system/references/image-roles.md)
 - **Reuse** 可按参考风格扩展流程、循环、嵌套层级和泳道。先重放原文并冻结原包，新稿通过独立生产版式适配信息密度，同时复核字号比例、标题衬底、底色和双语分行。 [版式继承检查](ppt-design-system/references/page-composition.md#检查沿用的标题与强调图层)
 - **Make** 支持导出原生单段 Bézier 自由曲线。启用继承检查后，PDF 导出会核对实际排版。回归中，双语标题从两行折成五行时会显示出错页和图层，修改后可重试。 [编辑与导出](ppt-design-system/references/workflow.md#在编辑页直接导出)
 
-本次候选版本通过 26 项 Python 回归、1 项 Chromium 打印回归，以及桌面和手机宽度下的 76 页排版检查。Mac PowerPoint 验证覆盖打开、编辑、保存和重开。
+此前版本通过 26 项 Python 回归、1 项 Chromium 打印回归，以及桌面和手机宽度下的 76 页排版检查。Mac PowerPoint 验证覆盖打开、编辑、保存和重开。
 
 ## Credits · 项目贡献
 
