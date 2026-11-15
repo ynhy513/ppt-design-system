@@ -77,4 +77,4 @@ pack=/path/to/extracted-design-pack
   --assets /path/to/production-assets --out /path/to/rendered
 ```
 
-编译目录内的 `STYLE.md` 汇总元素、适配规则和实际渲染参数。`compile-report.json` 记录每章选择的配方、对象、源属性 token、执行 token 以及延展缺口。接着用[复现检查](reproducibility.md)核对渲染结果。章节语义和配方的审美判断均需评审，当前本地命令的自动范围为 PPTX 原生对象扫描、语义稿匹配和 HTML 重放。
+编译目录内的 `STYLE.md` 汇总元素、适配规则和实际渲染参数。`compile-report.json` 记录每章选择的配方、标注的密度、各槽实填字符数和上限、对象、源属性 token、执行 token 以及延展缺口。比较换稿结果时，用这些值追踪拆页、合并和候选取舍；是否装得下仍以[实际渲染](reproducibility.md)为准。章节语义和配方的审美判断均需评审。

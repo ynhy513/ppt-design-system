@@ -160,6 +160,9 @@ def compile_story(system, catalog, grammar, manuscript):
                               **{key: recipe[key] for key in ("focus", "density", "weight")}, "slots": slots})
         trace.append({"chapter": chapter["id"], "intent": chapter["intent"], "recipe": identifier,
                       "pattern": recipe["pattern"], "layout_rule": recipe["layout"],
+                      "density": recipe["density"],
+                      "slot_usage": {name: {"chars": len(value), "limit": recipe["limits"][name]}
+                                     for name, value in slots.items()},
                       "elements": {key: {"status": grammar["elements"][key]["status"],
                                          "source": grammar["elements"][key]["objects"],
                                          "source_tokens": grammar["elements"][key]["tokens"],

@@ -1,7 +1,7 @@
 /* Print the complete static replay, one edge-to-edge 16:9 slide per PDF page. */
 const { resolve } = require('node:path');
 const { pathToFileURL } = require('node:url');
-const { checkRenderedInheritance, readOptionalReport } = require('./replay_inheritance.cjs');
+const { checkRenderedInheritance, checkRenderedText, readOptionalReport } = require('./replay_inheritance.cjs');
 
 async function main() {
   const [input, output] = process.argv.slice(2);
@@ -28,7 +28,9 @@ async function main() {
       await Promise.all([document.fonts.ready, ...[...document.images].map(image => image.decode())]);
     });
     const inheritance = readOptionalReport(input, 'inheritance-report.json');
-    const issues = await checkRenderedInheritance(page.locator('main > article'), inheritance);
+    const pages = page.locator('main > article');
+    const issues = await checkRenderedInheritance(pages, inheritance);
+    if (Object.keys(inheritance).length) issues.push(...await checkRenderedText(pages));
     if (issues.length) {
       console.error(issues.join('\n'));
       process.exitCode = 2;

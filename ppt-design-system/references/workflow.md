@@ -9,6 +9,8 @@ python ppt-design-system/scripts/style_catalog.py reference.pptx --out element-c
 
 扫描记录源稿文件指纹、对象位置、图层、样式和媒体指纹。源稿使用普通 PPTX，支持 1–120 页且文件不超过 200 MB。请结合代表页渲染和[提取指南](style-guide.md)决定保留哪些规则与素材。随后用[生产复用流程](element-compilation.md)编译新稿，并按[复现规范](reproducibility.md)渲染与检查。
 
+遇到空白 PPTX 占位符，查看 `placeholder-type` token。它按来源区分匹配版式和母版文本样式的首级候选字阶、字族、字重、斜体和对齐；可见文字属性仍查 `type`。这些候选不是完整的 PowerPoint 样式计算，落稿时仍要核对实际渲染、字体环境和行距。
+
 浏览器检查可选，使用 Node.js、Playwright 与 Chromium。在仓库根目录安装 Playwright 并运行 `npx playwright install chromium` 后，即可用 `node ppt-design-system/scripts/audit_replay.cjs /path/to/replay.html` 检查。也可以通过 `REPLAY_PLAYWRIGHT_PACKAGE` 和 `REPLAY_CHROMIUM` 指向已有的安装。
 
 ## 自动生成素材清单和覆盖表
@@ -100,4 +102,4 @@ python ppt-design-system/scripts/serve_deck.py design-pack.zip confirmed-manuscr
 
 导出以点击时的编辑状态为准。PPTX 复用原生制作路径，PDF 使用 Chromium 输出一张幻灯片一页。PDF 需按前文安装 Node.js、Playwright 与 Chromium，也可设置 `REPLAY_PLAYWRIGHT_PACKAGE`、`REPLAY_CHROMIUM`，并用 `--node` 指定 Node.js。编辑页在服务运行期间可用，默认地址为 `http://127.0.0.1:8769/`。另存的单文件 HTML 可离线编辑，直接导出 PPTX/PDF 使用本机编辑入口。
 
-传入 `--inheritance-review` 后，PDF 导出还会按实际打印排版核对已登记的分行和底色。发现偏差时，编辑页会指出对应页面和图层，保留当前修改供调整。
+传入 `--inheritance-review` 后，PDF 导出会在打印状态下核对已登记的分行和底色，以及各页文字是否超出槽位。发现偏差时，编辑页会指出对应页面和图层，保留当前修改供调整。文字通过槽位检查仍需目检重叠与阅读顺序。

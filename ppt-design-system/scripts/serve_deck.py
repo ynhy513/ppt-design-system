@@ -105,7 +105,7 @@ def serve(args):
                     exported = result.read_bytes()
             except (subprocess.CalledProcessError, subprocess.TimeoutExpired, FileNotFoundError) as error:
                 if isinstance(error, subprocess.CalledProcessError) and error.returncode == 2:
-                    self.error(422, "标题分行或底色与继承检查不符，请在编辑页调整：" + error.stderr.strip())
+                    self.error(422, "PDF 排版未通过，请在编辑页调整：" + error.stderr.strip())
                     return
                 print(getattr(error, "stderr", None) or str(error), file=sys.stderr)
                 self.error(500, "导出暂时失败，修改仍在编辑页。PDF 需要本机 Chromium 和 Playwright。")

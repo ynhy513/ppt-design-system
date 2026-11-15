@@ -8,13 +8,13 @@ const { promisify } = require('node:util');
 
 const run = promisify(execFile);
 
-test('PDF export rejects extra rendered lines under review and allows corrected text', async () => {
+test('reviewed PDF rejects wrapped titles and overflowing slots but allows hanging spaces', async () => {
   const folder = await mkdtemp(join(tmpdir(), 'deck-pdf-'));
   const input = join(folder, 'replay.html');
   const output = join(folder, 'deck.pdf');
   const exportPdf = () => run(process.execPath, [join(__dirname, 'export_pdf.cjs'), input, output]);
-  const writeSlide = title => writeFile(input, `<!doctype html><meta charset="utf-8">
-    <style>.text { width: 130px; font: 20px/24px monospace; white-space: pre-wrap; }</style>
+  const writeSlide = (title, height = 'auto') => writeFile(input, `<!doctype html><meta charset="utf-8">
+    <style>.text { width: 130px; height: ${height}; font: 20px/24px monospace; white-space: pre-wrap; }</style>
     <main><article id="cover" data-pattern="cover" style="background:#E8ECE7">
     <div class="text" data-layer="title"><span>${title}</span></div>
     </article></main>`);
@@ -30,7 +30,16 @@ test('PDF export rejects extra rendered lines under review and allows corrected 
     });
     await assert.rejects(readFile(output), { code: 'ENOENT' });
 
-    await writeSlide('Book Desk\nOpen Daily');
+    await writeSlide('Book Desk\nOpen Daily', '24px');
+    await assert.rejects(exportPdf, error => {
+      assert.equal(error.code, 2);
+      assert.match(error.stderr, /cover\/title: text exceeds its slot/);
+      assert.doesNotMatch(error.stderr, /expected 2 rendered lines/);
+      return true;
+    });
+    await assert.rejects(readFile(output), { code: 'ENOENT' });
+
+    await writeSlide('0123456789 word');
     await exportPdf();
     assert.equal((await readFile(output)).subarray(0, 5).toString(), '%PDF-');
   } finally {

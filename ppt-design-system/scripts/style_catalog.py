@@ -8,7 +8,7 @@ from pathlib import Path
 from lxml import etree
 from pptx.enum.shapes import MSO_SHAPE_TYPE
 
-from pptx_source import background, bounds, load_source, text_style, theme_for
+from pptx_source import background, bounds, load_source, placeholder_type, text_style, theme_for
 
 
 def local(node):
@@ -45,7 +45,7 @@ def catalog(source, *, asset_objects=None, assets_out=None):
         tokens[identifier] = {"kind": kind, "value": value}
         return identifier
 
-    def collect(shapes, page, theme, parent=None):
+    def collect(shapes, page, theme, layout_by_index, master, parent=None):
         for index, shape in enumerate(shapes):
             identifier = f"p{page}-o{shape.shape_id}"
             frame = bounds(shape, deck.slide_width, deck.slide_height)
@@ -73,6 +73,9 @@ def catalog(source, *, asset_objects=None, assets_out=None):
                 style = text_style(shape, theme, deck)
                 references.append(token("type", {k: v for k, v in style.items() if k != "insets"}))
                 references.append(token("insets", style["insets"]))
+                if shape.is_placeholder:
+                    for value in placeholder_type(shape, layout_by_index, master, theme):
+                        references.append(token("placeholder-type", value))
                 for node in shape._element.xpath("./p:txBody//a:rPr | ./p:txBody//a:defRPr"):
                     value = {"attributes": dict(node.attrib),
                              "fonts": {local(part): part.get("typeface")
@@ -98,7 +101,7 @@ def catalog(source, *, asset_objects=None, assets_out=None):
                 "bounds": frame, "rotation": shape.rotation, "tokens": list(dict.fromkeys(references)),
             }
             if shape.shape_type == MSO_SHAPE_TYPE.GROUP:
-                collect(shape.shapes, page, theme, identifier)
+                collect(shape.shapes, page, theme, layout_by_index, master, identifier)
 
     for page, slide in enumerate(deck.slides, 1):
         theme = theme_for(slide)
@@ -115,7 +118,9 @@ def catalog(source, *, asset_objects=None, assets_out=None):
             "palette": {name: token("color", value) for name, value in theme[0].items()},
             "theme_fonts": {name: token("typeface", value) for name, value in theme[2].items() if value},
         }
-        collect(slide.shapes, page, theme)
+        layout = slide.slide_layout
+        collect(slide.shapes, page, theme,
+                {shape.placeholder_format.idx: shape for shape in layout.placeholders}, layout.slide_master)
     if assets_out is not None:
         requested = selected if asset_objects is None else asset_objects
         export_assets(fingerprint, objects, requested, selected, assets_out)

@@ -9,6 +9,7 @@ from lxml import etree
 from pptx import Presentation
 from pptx.enum.dml import MSO_COLOR_TYPE, MSO_FILL_TYPE
 from pptx.enum.shapes import MSO_SHAPE_TYPE
+from pptx.enum.shapes import PP_PLACEHOLDER
 from pptx.oxml.ns import qn
 
 
@@ -153,3 +154,41 @@ def text_style(shape, theme, deck):
                        round(tf.margin_top / deck.slide_height, 4),
                        round(tf.margin_right / deck.slide_width, 4),
                        round(tf.margin_bottom / deck.slide_height, 4)]}
+
+
+def placeholder_type(shape, layout_by_index, master, theme):
+    """Record candidate level-one defaults, even when the slide slot has no text."""
+    placeholder = shape.placeholder_format
+    layout = layout_by_index.get(placeholder.idx)
+    role = layout.placeholder_format.type if layout is not None else placeholder.type
+    style = ("titleStyle" if role in {PP_PLACEHOLDER.TITLE, PP_PLACEHOLDER.CENTER_TITLE}
+             else "bodyStyle" if role in {PP_PLACEHOLDER.BODY, PP_PLACEHOLDER.OBJECT}
+             else "otherStyle")
+    candidates = []
+    if layout is not None:
+        candidates.extend(("layout", props) for props in layout._element.xpath(
+            "./p:txBody/a:lstStyle/a:lvl1pPr | ./p:txBody/a:p[1]/a:pPr"))
+    candidates.extend(("master-text-style", props) for props in master._element.xpath(
+        f"./p:txStyles/p:{style}/a:lvl1pPr"))
+    evidence = []
+    for origin, props in candidates:
+        value = {"origin": origin}
+        align = {"l": "left", "ctr": "center", "r": "right"}.get(props.get("algn"))
+        if align:
+            value["align"] = align
+        run = props.find(qn("a:defRPr"))
+        if run is not None:
+            size = run.get("sz", "")
+            if size.isdecimal():
+                value["pt"] = int(size) / 100
+            latin = run.find(qn("a:latin"))
+            face = latin.get("typeface") if latin is not None else None
+            if face:
+                value["font"] = theme[2].get({"+mj-lt": "title", "+mn-lt": "body"}.get(face), face)
+            for key, attribute in (("bold", "b"), ("italic", "i")):
+                flag = run.get(attribute)
+                if flag in {"0", "1", "true", "false"}:
+                    value[key] = flag in {"1", "true"}
+        if len(value) > 1 and value not in evidence:
+            evidence.append(value)
+    return evidence

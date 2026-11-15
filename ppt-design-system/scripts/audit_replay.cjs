@@ -2,7 +2,7 @@
 const { createHash } = require('node:crypto');
 const { resolve } = require('node:path');
 const { pathToFileURL } = require('node:url');
-const { checkRenderedInheritance, readOptionalReport } = require('./replay_inheritance.cjs');
+const { checkRenderedInheritance, checkRenderedText, readOptionalReport } = require('./replay_inheritance.cjs');
 
 function readFixedAssetRequirements(input) {
   const receipt = readOptionalReport(input, 'receipt.json');
@@ -66,26 +66,6 @@ async function main() {
         const outside = (child, outer) => child.left < outer.left - 1 ||
           child.right > outer.right + 1 || child.top < outer.top - 1 || child.bottom > outer.bottom + 1;
         for (const slide of slides) {
-          const glyphs = [];
-          for (const text of slide.querySelectorAll('.text')) {
-            const span = text.querySelector('span');
-            const range = document.createRange();
-            range.selectNodeContents(span);
-            const lines = [...range.getClientRects()];
-            const name = text.closest('.motif')
-              ? `${text.closest('.motif').dataset.layer}/${text.dataset.layer}`
-              : text.dataset.layer;
-            if (lines.some(line => outside(line, text.getBoundingClientRect()))) {
-              issues.push(`${slide.id}/${name}: text exceeds its slot`);
-            }
-            for (const { name: other, lines: otherLines } of glyphs) {
-              const overlaps = lines.some(a => otherLines.some(b =>
-                Math.min(a.right, b.right) - Math.max(a.left, b.left) > 1 &&
-                Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top) > 1));
-              if (overlaps) issues.push(`${slide.id}: ${name} collides with ${other}`);
-            }
-            glyphs.push({ name, lines });
-          }
           for (const image of slide.querySelectorAll('img')) {
             if (!image.complete || image.naturalWidth === 0) {
               issues.push(`${slide.id}/${image.dataset.layer}: image failed to load`);
@@ -110,6 +90,7 @@ async function main() {
         if (document.documentElement.scrollWidth > window.innerWidth) issues.push('Horizontal page overflow');
         return issues;
       });
+      issues.push(...await checkRenderedText(pages, { collisions: true }));
       issues.push(...await checkRenderedInheritance(pages, inheritance));
       issues.push(...await checkFixedAssets(page, requiredAssets));
       const screenshots = {};

@@ -61,4 +61,44 @@ async function checkRenderedInheritance(pages, inheritance) {
   }, inheritance);
 }
 
-module.exports = { checkRenderedInheritance, readOptionalReport };
+async function checkRenderedText(pages, { collisions = false } = {}) {
+  return pages.evaluateAll((slides, collisions) => {
+    const issues = [];
+    for (const slide of slides) {
+      const glyphs = [];
+      for (const text of slide.querySelectorAll('.text')) {
+        const span = text.querySelector('span');
+        if (!span) continue;
+        const range = document.createRange();
+        // pre-wrap can place a trailing space beyond the line box. Measure ink-bearing text.
+        const walker = document.createTreeWalker(span, NodeFilter.SHOW_TEXT);
+        const lines = [];
+        for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+          for (const match of node.data.matchAll(/\S+/gu)) {
+            range.setStart(node, match.index);
+            range.setEnd(node, match.index + match[0].length);
+            lines.push(...range.getClientRects());
+          }
+        }
+        const slot = text.getBoundingClientRect();
+        const motif = text.closest('.motif');
+        const name = motif ? `${motif.dataset.layer}/${text.dataset.layer}` : text.dataset.layer;
+        if (lines.some(line => line.left < slot.left - 1 || line.right > slot.right + 1 ||
+                               line.top < slot.top - 1 || line.bottom > slot.bottom + 1)) {
+          issues.push(`${slide.id}/${name}: text exceeds its slot`);
+        }
+        if (!collisions) continue;
+        for (const { name: other, lines: otherLines } of glyphs) {
+          const overlaps = lines.some(a => otherLines.some(b =>
+            Math.min(a.right, b.right) - Math.max(a.left, b.left) > 1 &&
+            Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top) > 1));
+          if (overlaps) issues.push(`${slide.id}: ${name} collides with ${other}`);
+        }
+        glyphs.push({ name, lines });
+      }
+    }
+    return issues;
+  }, collisions);
+}
+
+module.exports = { checkRenderedInheritance, checkRenderedText, readOptionalReport };
