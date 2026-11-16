@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xml:lang="en" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" width="1280" height="720" role="img" aria-labelledby="workflow-en-title workflow-en-desc" id="ppt-workflow-public-en-root">
+  <title id="workflow-en-title">How PPT-design-system works</title>
+  <desc id="workflow-en-desc">Extract a reusable design pack, match a new manuscript to its layout recipes, then make and export slides. Review gaps or multiple matches before retrying.</desc>
+  <defs>
+      <style>#ppt-workflow-public-en-root { --color-paper:#f5f5f5;
+    --color-paper-2:#ececec;
+    --color-ink:#2d3142;
+    --color-muted:#4f5d75;
+    --color-rule:#bfc0c0;
+    --color-accent:#bf4520;
+    --color-accent-tint:#f4e7e2;
+    --color-link:#2e5aa8;
+    --font-sans:Geist,"PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+    --font-serif:"Instrument Serif","Songti SC","Noto Serif CJK SC",serif;
+    --font-mono:"Geist Mono",ui-monospace,monospace; }
+      #ppt-workflow-public-en-root text { font-family:var(--font-sans);fill:var(--color-ink) }
+      #ppt-workflow-public-en-root .node { fill:#fff;stroke:var(--color-rule);stroke-width:1.25 }
+      #ppt-workflow-public-en-root .entry { fill:var(--color-paper);stroke:var(--color-rule);stroke-width:1.25 }
+      #ppt-workflow-public-en-root .branch { fill:var(--color-paper);stroke:var(--color-muted);stroke-width:1.3 }
+      #ppt-workflow-public-en-root .pack { fill:var(--color-accent-tint);stroke:var(--color-accent);stroke-width:1.75 }
+      #ppt-workflow-public-en-root .phase { font:600 13px var(--font-mono);letter-spacing:.08em;fill:var(--color-muted) }
+      #ppt-workflow-public-en-root .node-title { font-size:21px;font-weight:650 }
+      #ppt-workflow-public-en-root .node-sub, #ppt-workflow-public-en-root .legend { font-size:15px;fill:var(--color-muted) }
+      #ppt-workflow-public-en-root .route { fill:none;stroke:var(--color-muted);stroke-width:1.6 }
+      #ppt-workflow-public-en-root .review { stroke-dasharray:5 5 }
+      #ppt-workflow-public-en-root .arrow-label { font-size:13px;font-weight:600;fill:var(--color-muted) }</style>
+    <marker id="ppt-workflow-public-en-workflow-arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0L8 4L0 8Z" fill="var(--color-muted)"/></marker>
+  </defs>
+  <rect width="1280" height="720" fill="var(--color-paper)"/>
+  <rect x="24" y="28" width="1232" height="156" rx="6" fill="var(--color-paper-2)"/>
+  <path d="M40 208H1240 M40 648H1240" stroke="var(--color-rule)"/>
+  <text x="48" y="59" class="phase">EXTRACT FROM A REFERENCE</text>
+  <text x="48" y="245" class="phase">START HERE IF YOU HAVE A DESIGN PACK</text>
+
+  <g class="route" marker-end="url(#ppt-workflow-public-en-workflow-arrow)">
+    <path d="M256 120H314"/>
+    <path d="M592 120H650"/>
+    <path d="M724 164V192Q724 200 716 200H476Q468 200 468 208V270"/>
+    <path d="M256 330H314"/>
+    <path d="M592 330H632"/>
+    <path d="M864 330H962"/>
+    <path d="M748 400V462" class="review"/>
+    <path d="M632 518H408Q400 518 400 510V386" class="review"/>
+    <path d="M1100 384V462"/>
+  </g>
+  <rect x="892" y="292" width="60" height="28" rx="4" fill="var(--color-paper)"/>
+  <text x="922" y="312" text-anchor="middle" class="arrow-label">One match</text>
+  <rect x="760" y="418" width="120" height="28" rx="4" fill="var(--color-paper)"/>
+  <text x="769" y="437" class="arrow-label">None or several</text>
+  <rect x="460" y="484" width="106" height="24" rx="4" fill="var(--color-paper)"/>
+  <text x="513" y="501" text-anchor="middle" class="arrow-label">Review and retry</text>
+
+  <g class="station" data-check="48,88,208,64">
+    <rect x="48" y="88" width="208" height="64" rx="20" class="entry"/>
+    <text x="64" y="116" class="node-title">Reference</text>
+    <text x="64" y="138" class="node-sub">PPTX, PDF, screenshots</text>
+  </g>
+  <g class="station" data-check="316,76,276,88">
+    <rect x="316" y="76" width="276" height="88" rx="6" class="node"/>
+    <text x="332" y="105" class="node-title">Extract</text>
+    <text x="332" y="130" class="node-sub">Scan assets and visual evidence</text>
+    <text x="332" y="150" class="node-sub">Replay and review source layouts</text>
+  </g>
+  <g class="station" data-check="652,76,280,88">
+    <rect x="652" y="76" width="280" height="88" rx="6" class="pack"/>
+    <text x="668" y="105" class="node-title">Frozen design pack</text>
+    <text x="668" y="130" class="node-sub">Styles, recipes, evidence, and assets</text>
+    <text x="668" y="150" class="node-sub">Reuse this ZIP with new content</text>
+  </g>
+  <g class="station" data-check="48,296,208,68">
+    <rect x="48" y="296" width="208" height="68" rx="20" class="entry"/>
+    <text x="64" y="324" class="node-title">New manuscript</text>
+    <text x="64" y="347" class="node-sub">Map relations and fields</text>
+  </g>
+  <g class="station" data-check="316,272,276,112">
+    <rect x="316" y="272" width="276" height="112" rx="6" class="node"/>
+    <text x="332" y="305" class="node-title">Reuse</text>
+    <text x="332" y="333" class="node-sub">Check fields, counts, and capacity</text>
+    <text x="332" y="357" class="node-sub">Log recipes, density, and slot usage</text>
+  </g>
+  <g class="station" data-check="632,260,232,140">
+    <path d="M748 260L864 330L748 400L632 330Z" class="branch"/>
+    <text x="748" y="327" text-anchor="middle" class="node-title">Exactly one</text>
+    <text x="748" y="353" text-anchor="middle" class="node-title">layout match?</text>
+  </g>
+  <g class="station" data-check="964,272,272,112">
+    <rect x="964" y="272" width="272" height="112" rx="6" class="node"/>
+    <text x="980" y="305" class="node-title">Make</text>
+    <text x="980" y="333" class="node-sub">Render and check inherited layout</text>
+    <text x="980" y="357" class="node-sub">Edit text, images, and positions</text>
+  </g>
+  <g class="station" data-check="632,464,260,108">
+    <rect x="632" y="464" width="260" height="108" rx="6" class="entry"/>
+    <text x="648" y="496" class="node-title">Review match report</text>
+    <text x="648" y="524" class="node-sub">Compare previews or split slides</text>
+    <text x="648" y="548" class="node-sub">Extend layouts in a working copy</text>
+  </g>
+  <g class="station" data-check="964,464,272,108">
+    <rect x="964" y="464" width="272" height="108" rx="20" class="entry"/>
+    <text x="980" y="496" class="node-title">Deliver</text>
+    <text x="980" y="524" class="node-sub">Editable HTML, PPTX, and PDF</text>
+    <text x="980" y="548" class="node-sub">PDF export can block overflow</text>
+  </g>
+  <g aria-hidden="true">
+    <path d="M48 681H80" class="route" marker-end="url(#ppt-workflow-public-en-workflow-arrow)"/>
+    <text x="94" y="686" class="legend">Main flow</text>
+    <path d="M248 681H280" class="route review" marker-end="url(#ppt-workflow-public-en-workflow-arrow)"/>
+    <text x="294" y="686" class="legend">Review and retry</text>
+  </g>
+</svg>

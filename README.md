@@ -6,6 +6,23 @@ Extract a reusable design pack from a reference presentation, then use it to mak
 
 **[打开操作指南](docs/usage.md)** · 按模式找入口，或跟着示例从参考稿做到可编辑 PPTX 和 PDF。
 
+## How it works · 工作流程
+
+从参考稿提取一份可复用设计包。有了设计包，新稿可以直接从 Reuse 开始。选版遇到缺口或出现多个候选时，先看匹配报告，再调整并重试。
+
+![PPT-design-system 中文流程图。参考稿经 Extract 变成设计包，新文稿经 Reuse 选版后进入 Make。](docs/images/workflow.zh-CN.svg)
+
+[查看中文版大图](docs/images/workflow.zh-CN.svg) · [View the full-size English diagram](docs/images/workflow.en.svg)
+
+<details>
+<summary>English workflow diagram</summary>
+
+Extract a reusable design pack from a reference, then start from Reuse each time you bring a new manuscript. If a page has no match or several candidates, review the match report before retrying.
+
+![PPT-design-system workflow from reference extraction through layout matching and editable slide delivery.](docs/images/workflow.en.svg)
+
+</details>
+
 ## Quick start · 快速开始
 
 1. Clone or download this repository and open it in your agent's workspace.
