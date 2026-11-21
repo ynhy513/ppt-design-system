@@ -8,7 +8,7 @@
       "type": "object", "additionalProperties": false,
       "required": ["kind", "sha256", "pages"],
       "properties": {
-        "kind": {"enum": ["pptx", "pdf", "image", "web-snapshot"]},
+        "kind": {"enum": ["pptx", "pdf", "image", "web-snapshot", "markdown"]},
         "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
         "pages": {"type": "integer", "minimum": 1}
       }
@@ -67,9 +67,10 @@
           "additionalProperties": {
             "type": "object", "additionalProperties": false, "required": ["font", "size", "weight", "leading"],
             "properties": {
-              "font": {"type": "string", "pattern": "^[a-zA-Z0-9 ,_-]+$", "maxLength": 150},
+              "font": {"type": "string", "pattern": "^[\\w ,_-]+$", "maxLength": 150},
               "size": {"type": "number", "minimum": 1, "maximum": 18},
-              "weight": {"enum": [400, 500, 600, 700]},
+              "weight": {"type": "integer", "minimum": 100, "maximum": 900},
+              "tracking": {"type": "number", "minimum": -0.1, "maximum": 0.5},
                 "italic": {"type": "boolean"},
               "leading": {"type": "number", "minimum": 1, "maximum": 2}
             }

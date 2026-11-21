@@ -4,8 +4,9 @@ import json
 
 from PIL import Image
 import pytest
+from jsonschema import ValidationError
 
-from design_replay import check_plan, check_system, make_renderer, render
+from design_replay import check_plan, check_source, check_system, make_renderer, render
 from check_inherited_layout import check_inherited_layout, verify_inherited_layout
 from review_variants import apply_review
 from structural_components import handoff_swimlane, standard_motif, variant_options
@@ -48,6 +49,39 @@ def design_system():
             },
         },
     }
+
+
+def test_markdown_source_is_distinct_and_retains_fingerprint_guard(design_system, tmp_path):
+    source = tmp_path / "design.md"
+    source.write_text("# Design\nPaper: #FFFFFF\n", encoding="utf-8")
+    design_system["source"] = {"kind": "markdown", "pages": 1,
+                               "sha256": sha256(source.read_bytes()).hexdigest()}
+    del design_system["families"]["guest"]
+    del design_system["evidence"]["guest-page"]
+    del design_system["rules"]["guest-rule"]
+    design_system["evidence"]["main-page"]["finding"] = "design.md lines 1-2; document declaration, not measured pixels"
+    check_system(design_system)
+    check_source(design_system, source)
+    source.write_text("# Changed specification\n", encoding="utf-8")
+    with pytest.raises(ValueError, match="Source SHA-256"):
+        check_source(design_system, source)
+
+
+def test_typography_retains_precise_weight_tracking_and_safe_unicode_font(design_system):
+    style = design_system["tokens"]["type"]["body"]
+    style.update(font="Söhne Mono, Arial, sans-serif", weight=653, tracking=-0.035)
+    check_system(design_system)
+    draw, _, _ = make_renderer(design_system, None, set())
+    layer = design_system["patterns"]["editorial"]["layers"][0]
+    html = draw(layer, {"title": "Sample"}, "test")
+    assert "653 2cqw" in html and "letter-spacing:-0.035em" in html and "Söhne Mono" in html
+    revised = deepcopy(design_system)
+    del revised["tokens"]["type"]["body"]["tracking"]
+    assert any("tracking" in issue for issue in check_inherited_layout(design_system, revised, {
+        "source_pattern": "editorial", "production_pattern": "editorial", "layers": {"title": {}}}))
+    style["font"] = "Arial; color:red"
+    with pytest.raises(ValidationError):
+        check_system(design_system)
 
 
 def test_excluded_family_cannot_enter_via_a_color_token(design_system):

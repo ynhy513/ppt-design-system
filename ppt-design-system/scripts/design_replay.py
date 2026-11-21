@@ -340,6 +340,8 @@ def make_renderer(system, assets, original_media, *, asset_resolver=None):
             slant = "italic " if t.get("italic") else ""
             style = (f'{pos};font:{slant}{t["weight"]} {t["size"]}cqw/{t["leading"]} {t["font"]};'
                      f'color:{color("ink")};text-align:{layer["align"]}')
+            if "tracking" in t:
+                style += f';letter-spacing:{t["tracking"]}em'
             return f'<div class="text" {attr} style="{style}"><span>{content}</span></div>'
         if kind == "image":
             image_x, image_y = layer["position"]

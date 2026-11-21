@@ -13,6 +13,8 @@ python ppt-design-system/scripts/style_catalog.py reference.pptx --out element-c
 
 浏览器检查可选，使用 Node.js、Playwright 与 Chromium。在仓库根目录安装 Playwright 并运行 `npx playwright install chromium` 后，即可用 `node ppt-design-system/scripts/audit_replay.cjs /path/to/replay.html` 检查。也可以通过 `REPLAY_PLAYWRIGHT_PACKAGE` 和 `REPLAY_CHROMIUM` 指向已有的安装。
 
+参考依赖平涂色场时，用实际单页截图及已审阅区间运行 `python ppt-design-system/scripts/check_color_fields.py color-review.json --out color-report.json`，见[颜色职责与评审格式](color-language.md)。这是按需复验，不改变既有设计包或 Make 命令；没有评审范围时不宣称颜色面积已自动验收。
+
 ## 自动生成素材清单和覆盖表
 
 ```bash

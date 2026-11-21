@@ -54,6 +54,8 @@ def check_inherited_layout(source, production, review):
                     errors.append(f"{identifier} → {target}: {key} {expected[key]} → {actual[key]}")
             if expected.get("italic", False) != actual.get("italic", False):
                 errors.append(f"{identifier} → {target}: italic changed")
+            if expected.get("tracking", 0) != actual.get("tracking", 0):
+                errors.append(f"{identifier} → {target}: tracking changed")
             if source["tokens"]["colors"][before["ink"]] != production["tokens"]["colors"][after["ink"]]:
                 errors.append(f"{identifier} → {target}: text color changed")
         if before["kind"] == after["kind"] and before["kind"] in {"box", "image", "line", "curve"}:

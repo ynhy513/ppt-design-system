@@ -2,7 +2,7 @@
 
 Extract a reusable design pack from a reference presentation, then use it to make a new deck. This is a cross-tool preview for coding agents with local file and shell access.
 
-把参考演示提炼成可复用的设计包，再用同一套设计做新稿。可以从 PPTX、PDF 或截图开始，交付可编辑 HTML、原生 PPTX 和 16:9 PDF。第一次使用，建议准备一份参考和一份短文稿。
+把参考演示提炼成可复用的设计包，再用同一套设计做新稿。可以从 PPTX、PDF、截图或 Markdown 设计规范开始，交付可编辑 HTML、原生 PPTX 和 16:9 PDF。第一次使用，建议准备一份参考和一份短文稿。
 
 **[打开操作指南](docs/usage.md)** · 按模式找入口，或跟着示例从参考稿做到可编辑 PPTX 和 PDF。
 
@@ -40,10 +40,15 @@ Extract a reusable design pack from a reference, then start from Reuse each time
 | 你想做什么 | 准备什么 | 会得到什么 |
 | --- | --- | --- |
 | **Extract · 提取风格** | 参考 PPTX、PDF 或截图，以及未来常做的演示类型 | 素材清单、组件覆盖表和经审阅的设计包 ZIP。设计包记录颜色、字阶、版式、内容槽、选中的素材及来源。 |
+| **Extract · 读取设计规范** | `design.md` 等 Markdown 文件；有参考画面时一并提供 | Agent 辅助映射的设计包，区分文档声明、解释、延展和缺口。Markdown 不经过视觉扫描器。 |
 | **Reuse · 选版和填槽** | 已有设计包和新文稿 | 逐页分镜、版式匹配结果和具体缺口。可先确认分镜，再生成成稿。 |
 | **Make · 制作与交付** | 已有设计包、确认后的文稿，以及需要替换进去的图片 | 可编辑 HTML 和支持原生对象的 PPTX。打开本机编辑入口后，可直接下载当前稿的 PPTX 或 PDF。 |
 
 首次提取时，扫描会先登记可获取的素材和来源证据。Agent 结合页面预览确认素材角色、版式和组件覆盖，再整理成可复用的设计包。后续换稿可沿用同一个设计包。 [提取与打包说明](ppt-design-system/references/workflow.md#自动生成素材清单和覆盖表)
+
+也可提供 `design.md` 设计规范，由 Agent 区分明确声明、解释和新增延展，映射成现有设计包；这是人工辅助审阅的输入路线，不是通用 Markdown 自动解析器。第三方品牌分析会保留非官方身份和证据缺口。[Markdown 输入](ppt-design-system/references/markdown-design.md)
+
+对于依赖整块颜色和明暗切换的参考，除色值外也继承颜色职责、区域与跨页节奏。可对实际单页截图运行 `check_color_fields.py`，输出已审阅平涂区域的覆盖率与截图指纹；面积阈值按具体参考确定，渐变、照片和审美仍需视觉复核。[颜色职责与检查命令](ppt-design-system/references/color-language.md)
 
 照片型参考的原图不够清晰时，Agent 可以按图片槽的题材、留字区和构图，用中英文关键词从国内外来源找图，核对裁切后的尺寸和许可。允许分发的照片可以随设计包调用。 [搜图与素材复用](ppt-design-system/references/photo-sourcing.md)
 
@@ -69,6 +74,8 @@ PPTX 当前支持可编辑文字、图片、基础形状、直线箭头、单段
 
 ## Use cases · 使用案例
 
+- **从公开 Markdown 设计分析制作不同风格。** 用同样两份虚构稿件分别映射 Figma、Mailchimp、Spotify，各五页，共 30 页。色场分别表现为多色章节、黄／米／棕编辑式页面和近黑行动界面，逐页核对实际覆盖范围，不只检查色板。三份文件均为第三方分析，不是公司官方规范；官方页面只用于交叉核对可见范围。 [Figma 分析](https://github.com/VoltAgent/awesome-design-md/blob/main/design-md/figma/DESIGN.md) · [Mailchimp 分析](https://github.com/administrakt0r/design-systems/blob/main/designs/mailchimp.design.md) · [Spotify 分析](https://github.com/VoltAgent/awesome-design-md/blob/main/design-md/spotify/DESIGN.md)
+- **用新参考验证补足和中英文适配。** IBM 第三方 Markdown 先建立基础包，流程和比较关系保留严格缺口，再在生产副本补足。两份中文新稿加一份英文新稿共 15 页通过实际浏览器排版、编辑保存重开、色场和原生文本检查；中、英文封面各在 Mac PowerPoint 改字后保存重开。英文生产副本调整容量及双行标题容器，保留字号比例、组件和色场。核对发现的色阶标签差异、字体缺失和原生 300 字重近似均保留为限制；此结果不代表任意 Markdown 全自动解析或品牌字体保真。 [第三方分析](https://github.com/VoltAgent/awesome-design-md/blob/main/design-md/ibm/DESIGN.md) · [官方颜色核对](https://www.ibm.com/design/language/color/)
 - **同一份新稿适配两套公开模板。** 用虚构的社区高温应对试点做四轮选版，逐轮完成提取、选版和导出。两套模板都核对了冻结源包的前后重放。
   - **Colorado State University · System Fonts。** 比较顶栏三列与侧栏三列。两轮各 5 页，六项检查拆成两页，每页 3 项。侧栏版保留更明显的品牌色带，顶栏版给正文更宽的栏位。 [公开模板来源](https://brand.colostate.edu/templates/)
   - **Purdue Polytechnic · Gold Widescreen。** 比较白底正文与金底强调页。两轮各 4 页，六项检查都用一页承载。PPTX 写入原字族和字号比例，浏览器用替代字体渲染了 Franklin Gothic 文字。 [公开模板来源](https://polytechnic.purdue.edu/office-marketing-communications/toolbox-guides/templates)
@@ -87,13 +94,19 @@ PPTX 当前支持可编辑文字、图片、基础形状、直线箭头、单段
 
 ## What's new · 本次更新
 
+- **Extract** 新增 Agent 辅助的 Markdown 设计规范入口，保留原文指纹、来源身份及声明／推断／延展的区别；现有 Extract → Reuse → Make 主流程保持不变。 [Markdown 输入](ppt-design-system/references/markdown-design.md)
+- **视觉继承** 核对颜色职责、位置、面积及明暗节奏。按需运行 `check_color_fields.py`，对实际单页截图的已审阅平涂区域检查覆盖上下限；色场缩小、移位或过度铺色会返回非零退出码。 [色场检查](ppt-design-system/references/color-language.md)
+- **字体细节** 保留 100–900 的整数 CSS 字重、安全的 Unicode 字体名和 em 字距；继承检查覆盖字距，PPTX 写入字符间距并保留中文衬线字体绑定。`make-report.json` 明确列出原生常规／粗体标志近似的权重。 [制作范围](ppt-design-system/references/workflow.md#制作并编辑整套演示)
+
+本轮 32 项 Python 测试和 Chromium 打印回归通过。色场工具在 45 张中英文实际渲染页上通过，并拒绝缩小、移位和整页铺蓝的三个成稿反例。排版与编辑验收覆盖当前 Mac 的指定浏览器／PowerPoint 样本，未验证 Windows／WPS；品牌字体、照片／渐变与整体审美仍需独立复核。
+
+### Earlier updates · 此前更新
+
 - **Extract** 为空白 PPTX 占位符记录来自版式和母版文本样式的首级字号、字体、字重、斜体和对齐候选，落稿时可结合实际渲染核对。 [提取与证据采集](ppt-design-system/references/workflow.md)
 - **Reuse** 在编译报告中记录入选配方的密度、各槽实填字符数和上限，便于追踪拆页和选版取舍。容量用于初筛，文字是否装得下以渲染为准。 [配方与编译报告](ppt-design-system/references/element-compilation.md#运行)
 - **Make** 启用继承检查后，PDF 导出会在打印状态检查文字是否超出槽位，过滤行尾空格误报。发现越界时指出页和图层，保留当前编辑供调整后重试。 [编辑与导出](ppt-design-system/references/workflow.md#在编辑页直接导出)
 
-本轮回归验证了四份旧版可导出的越界稿均会被拦截，修正后可以重新导出。27 项 Python 测试和 Chromium 打印回归通过。
-
-### Earlier updates · 此前更新
+上一轮回归验证了四份旧版可导出的越界稿均会被拦截，修正后可以重新导出。27 项 Python 测试和 Chromium 打印回归通过。
 
 - **Extract** 逐页记录复用、搜图、延展、重绘或待核对的建议，附来源证据、理由和不确定项。 [图片职责](ppt-design-system/references/image-roles.md)
 - **Reuse** 可按参考风格扩展流程、循环、嵌套层级和泳道。先重放原文并冻结原包，新稿通过独立生产版式适配信息密度，同时复核字号比例、标题衬底、底色和双语分行。 [版式继承检查](ppt-design-system/references/page-composition.md#检查沿用的标题与强调图层)

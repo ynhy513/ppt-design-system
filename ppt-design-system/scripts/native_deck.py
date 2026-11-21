@@ -91,6 +91,7 @@ def write_pptx(system, pages, boxes, asset, output):
         fonts = [name.strip() for name in style["font"].split(",")]
         font = next((name for name in fonts if name not in {"sans-serif", "serif", "monospace"}), "Arial")
         east_asian = next((name for name in fonts if name.startswith(("PingFang", "Microsoft YaHei", "Noto Sans CJK",
+                                                                        "Noto Serif CJK", "Songti", "STSong",
                                                                         "Hiragino", "SimHei", "SimSun"))), font)
         value = slots[layer["slot"]] if "slot" in layer else layer["value"]
         phrase = slots.get(layer.get("underline_slot"), "")
@@ -111,6 +112,8 @@ def write_pptx(system, pages, boxes, asset, output):
                 if style.get("italic"):
                     run.font.italic = True
                 run.font.size = Pt(font_width / 12700 * style["size"] / 100)
+                if "tracking" in style:
+                    run._r.get_or_add_rPr().set("spc", str(round(run.font.size.pt * style["tracking"] * 100)))
                 run.font.color.rgb = color(layer["ink"], paint)
                 if start >= 0 and start <= offset + a < end:
                     run.font.underline = True

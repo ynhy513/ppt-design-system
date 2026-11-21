@@ -19,7 +19,7 @@ from PIL import Image
 
 from check_inherited_layout import verify_inherited_layout
 from compile_story import compile_story
-from design_replay import check_plan, check_source, check_system, load, make_renderer, render, require, source_media
+from design_replay import check_plan, check_source, check_system, load, make_renderer, render, require, source_media, used_tokens
 from native_deck import write_pptx
 from package_design import MANIFEST, ZIP_ROOT, check_directory, check_zip
 
@@ -220,10 +220,17 @@ def make(args, stage, *, export_token=None):
     save_json(stage / "edits.json", edits)
     if not args.html_only:
         write_pptx(system, pages, boxes, asset, stage / "deck.pptx")
+    types = {token.split(".", 1)[1] for page in pages
+             for token in used_tokens(system["patterns"][page["pattern"]]["layers"], system)
+             if token.startswith("type.")}
+    weight_limits = [{"token": name, "declared_weight": system["tokens"]["type"][name]["weight"],
+                      "pptx_bold": system["tokens"]["type"][name]["weight"] >= 600,
+                      "reason": "Native PPTX uses regular/bold flags; exact CSS weight needs target-font verification."}
+                     for name in sorted(types) if system["tokens"]["type"][name]["weight"] not in {400, 700}]
     save_json(stage / "make-report.json", {"pages": len(pages), "base": model["base"],
               "native_pptx": not args.html_only, "fixed_assets": fixed_hashes, "stock_photos": stock_hashes,
               "content_assets": content_hashes,
-              "edited_pages": list(edits["pages"])})
+              "edited_pages": list(edits["pages"]), "native_weight_limits": weight_limits if not args.html_only else []})
     return True
 
 

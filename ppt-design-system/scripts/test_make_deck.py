@@ -32,6 +32,20 @@ def test_native_curve_preserves_control_points_and_arrow(tmp_path):
     assert shape._element.xpath("./p:spPr/a:ln/a:tailEnd")[0].get("type") == "triangle"
 
 
+def test_native_text_retains_em_tracking_as_point_spacing(tmp_path):
+    system = {"tokens": {"colors": {"paper": "#FFFFFF", "ink": "#202024"}, "radii": {}, "strokes": {},
+        "type": {"title": {"font": "Georgia, Songti SC, serif", "size": 5, "weight": 653, "leading": 1.2, "tracking": -.035}}},
+        "families": {"main": {}}, "patterns": {"cover": {"family": "main", "background": "paper", "layers": [
+            {"id": "title", "kind": "text", "box": [6,20,88,25], "type": "title", "ink": "ink", "align": "left", "slot": "title"}]}}}
+    file = tmp_path / "tracking.pptx"
+    write_pptx(system, [{"id": "page", "pattern": "cover", "slots": {"title": "A precise title"}}], {}, None, file)
+    run = Presentation(file).slides[0].shapes[0].text_frame.paragraphs[0].runs[0]
+    assert run.font.size.pt == 48
+    assert run.font.bold
+    assert run._r.rPr.get("spc") == "-168"
+    assert run._r.rPr.find("{http://schemas.openxmlformats.org/drawingml/2006/main}ea").get("typeface") == "Songti SC"
+
+
 def test_edits_are_page_specific_and_keep_the_confirmed_manuscript():
     plan = {"version": 1, "pages": [{"id": "first", "slots": {"title": "Old phrase", "emphasis": "phrase", "photo": "a.png"}},
                                     {"id": "second", "slots": {"title": "Other page"}}]}
