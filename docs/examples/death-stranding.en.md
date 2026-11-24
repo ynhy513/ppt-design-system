@@ -6,6 +6,10 @@
 
 The user had an English handover proposal, wanted quantitative exhibits, and asked for the environmental mood and connection metaphor of Death Stranding. The proposal explains how another person can continue the work; the visual reference supports that story.
 
+![Example cover: an original misty valley, a backpacked figure on the right, and the English title From information to implementation on the left.](../images/examples/death-stranding/cover.jpg)
+
+*Cover example: the landscape was independently generated; titles and metadata were laid out separately. All images below are actual HTML renders from the historical case. Both language editions share the original English slides, with localized captions.*
+
 ## Start with the new two-choice entry
 
 The following prompt uses the updated workflow. **The two-choice entry is a new addition, not a claim about how the historical case was run.**
@@ -26,6 +30,14 @@ Fonts, metadata strips, exact colors, charts and whole-page layouts were design 
 
 The initial reference-derived pack was frozen before strict matching. Ranking, trend and modeled-scenario relationships were missing and were added in a production copy. The original pack remained intact. For the process page, step-rail and milestone-path drawings were rendered with identical copy. The route drawing was chosen to support the connection-across-terrain metaphor while retaining the three-stage reading order.
 
+### The same process, two drawings
+
+| Aligned step rail | Milestone path · selected for this case |
+| --- | --- |
+| ![Step rail: three handover checkpoints aligned on a horizontal axis.](../images/examples/death-stranding/step-rail.png) | ![Milestone path: the same three handover checkpoints follow a curved route with identical copy.](../images/examples/death-stranding/milestone-path.png) |
+
+*Both use the same define scope, prepare evidence and confirm receipt copy. The rail emphasizes alignment and sequence; the path carries the connection-across-terrain metaphor into the structure. The choice considers reference fit and reading order, beyond color changes. Click an image for a larger view.*
+
 ## How the eight pages worked
 
 | Page | Story task | Composition and rationale |
@@ -41,10 +53,23 @@ The initial reference-derived pack was frozen before strict matching. Ranking, t
 
 All three datasets were fictional inputs: a 120-handover issue distribution of 40/30/20/10%; eight independent weekly batches of 20 with acceptance starting at 50% and ending at 85%; and two assumed methods with the same task mix totaling 60% and 80%. They do not establish effectiveness. Percentage-point differences are not relative growth, and independent weekly batches are not a cumulative cohort.
 
+![Diagnostic page: bars show 40%, 30%, 20% and 10%; the right-hand takeaway highlights the first two categories totaling 70%.](../images/examples/death-stranding/diagnostic.png)
+
+*Data-page example: the dark field, condensed title and restrained accents carry the visual language, while bars share a zero baseline. The 70% callout is separate summary text, and the page labels its data as fictional. A screenshot shows appearance, not data-linked editability.*
+
+<details>
+<summary>Expand the complete eight-page overview</summary>
+
+![Eight-page overview: landscape cover, issue distribution, three principles, handover route, weekly trend, paired comparison, modeled scenario and closing action.](../images/examples/death-stranding/overview.jpg)
+
+*Use the overview to compare light/dark rhythm and information density; the individual examples above show readable page details.*
+
+</details>
+
 ## Evidence and standard-export limits
 
 The historical case checked browser layout and inheritance for eight pages and both process candidates, plus HTML text editing, dragging, offline saving and reopening. All eight PDF pages received text and render checks. Repeating the same reviewed mapping produced identical static output; this does not prove that independent models select the same layouts.
 
 Standard export supplies native text, pictures, basic shapes, curves and groups. **The case's three data-linked PowerPoint charts came from separate production postprocessing, which is not integrated into the public Skill.** In a Mac PowerPoint test copy, changing one value from 40 to 41 survived saving and reopening; the final retained the original data. This is not evidence for every chart, Windows or other font environments. Changing HTML numbers does not automatically rescale marks, and separate metric callouts require manual updates.
 
-This public story shares the method, page roles and evidence limits, not original game images, private inputs, deck files or test copies. Death Stranding identifies a visual reference, without implying official affiliation or permission. Use assets obtained under their source conditions.
+This public story shares the method, page roles, example images and evidence limits, not original game images, private inputs, deck files or test copies. Death Stranding identifies a visual reference, without implying official affiliation or permission. Use assets obtained under their source conditions.
