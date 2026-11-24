@@ -1,0 +1,21 @@
+name: Documentation links and languages
+
+on:
+  push:
+    paths: ["**/*.md", "scripts/check_docs.py", "scripts/test_check_docs.py", ".github/workflows/docs.yml"]
+  pull_request:
+    paths: ["**/*.md", "scripts/check_docs.py", "scripts/test_check_docs.py", ".github/workflows/docs.yml"]
+
+permissions:
+  contents: read
+
+jobs:
+  documentation:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: python -m unittest discover -s scripts -p 'test_check_docs.py'
+      - run: python scripts/check_docs.py

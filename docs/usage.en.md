@@ -2,7 +2,7 @@
 
 **English** | [简体中文](usage.md)
 
-[Back to README](../README.md) · [Runtime setup](../ppt-design-system/references/workflow.md) · [Death Stranding-inspired story](examples/death-stranding.en.md)
+[Back to README](../README.md) · [Runtime setup](../ppt-design-system/references/workflow.en.md) · [Death Stranding-inspired story](examples/death-stranding.en.md)
 
 ## Choose an entry
 
@@ -20,7 +20,7 @@ Keep the reference and manuscript in the workspace. Install the whole Skill fold
 
 > Use $ppt-design-system to make this manuscript in a brand/IP-inspired direction. I have no template. First let me choose direct IP images or independent similar-style assets. Then render 2–3 distinct directions using identical copy. Wait for my selection before making the full deck. I may choose one overall direction and another only for data pages.
 
-Choose the image approach before comparing visual directions. Each candidate normally includes a cover and a representative content page, with actual reference sources shown separately from generated previews. Differences should include typography, composition, density or image treatment, not just colors. Existing references and approved choices carry forward without repeated questions. This is an agent-guided entry, not a new automatic search or selection command. [Full rules](../ppt-design-system/references/style-selection.md)
+Choose the image approach before comparing visual directions. Each candidate normally includes a cover and a representative content page, with actual reference sources shown separately from generated previews. Differences should include typography, composition, density or image treatment, not just colors. Existing references and approved choices carry forward without repeated questions. This is an agent-guided entry, not a new automatic search or selection command. [Full rules](../ppt-design-system/references/style-selection.en.md)
 
 For a Death Stranding-inspired request, inspect real official environmental references, then choose direct images or independent assets with similar visual qualities. Candidate previews use the same copy. A combination such as “A overall, B only for data pages” is recorded before extracting, extending and making the full deck. [Worked story](examples/death-stranding.en.md)
 
@@ -30,13 +30,13 @@ Provide the reference and intended uses. Name any chapter color, layout feature 
 
 > Use $ppt-design-system to extract this reference. My future internal reviews need a two-way comparison and staged actions with acceptance criteria. List separately reusable assets, component coverage and missing layouts, then deliver a reviewed design-pack ZIP.
 
-Review the asset inventory and representative pages. Decide which artwork stays fixed and which imagery changes with the story. PPTX scanning reads native objects and embedded media; PDF scanning records obtainable image streams. Screenshots support visible observation and reconstruction, while independent layers and exact font identity may need other evidence. [Extraction commands](../ppt-design-system/references/workflow.md#自动生成素材清单和覆盖表)
+Review the asset inventory and representative pages. Decide which artwork stays fixed and which imagery changes with the story. PPTX scanning reads native objects and embedded media; PDF scanning records obtainable image streams. Screenshots support visible observation and reconstruction, while independent layers and exact font identity may need other evidence. [Extraction commands](../ppt-design-system/references/workflow.en.md#automatic-asset-inventory-and-component-coverage)
 
 ### Start with a Markdown specification
 
 > Use $ppt-design-system to read this design.md and map color roles, type proportions, components and reuse conditions. Separate source declarations from interpretation and new design extensions. Report missing geometry or assets. Freeze the baseline before filling gaps in a production copy, then deliver editable HTML and PPTX.
 
-The agent interprets Markdown; do not pass it to `extract_review.py scan`. Supply visual references when available. Without them, check specification consistency and readability rather than claiming visual reproduction. Third-party brand analyses remain non-official. [Markdown input](../ppt-design-system/references/markdown-design.md)
+The agent interprets Markdown; do not pass it to `extract_review.py scan`. Supply visual references when available. Without them, check specification consistency and readability rather than claiming visual reproduction. Third-party brand analyses remain non-official. [Markdown input](../ppt-design-system/references/markdown-design.en.md)
 
 For another language, check actual word length and wrapping. A character limit is not a cross-language fit guarantee. Put capacity and title-container adaptations in the production copy, preserve the type hierarchy and color fields, and verify the render.
 
@@ -46,7 +46,7 @@ Provide the pack ZIP and new copy, either page by page or as prose. Mark facts, 
 
 > Use this pack to make a page storyboard. For each page, state the content relationship, chosen layout and rationale. If capacity or structure does not fit, explain whether to change layout, split a page or extend a component.
 
-Check whether the titles form a coherent story and whether comparisons, sequences and causal claims use appropriate relationships. Fill a gap in a production copy before making the deck. [Matching and extensions](../ppt-design-system/references/element-compilation.md#3-读稿匹配和延展)
+Check whether the titles form a coherent story and whether comparisons, sequences and causal claims use appropriate relationships. Fill a gap in a production copy before making the deck. [Matching and extensions](../ppt-design-system/references/element-compilation.en.md#3-read-match-and-extend)
 
 ## Make: edit and export
 
@@ -61,7 +61,7 @@ Provide a reviewed pack, confirmed manuscript and required content images. Choos
 
 The current editor has Chinese labels: **编辑** = Edit, **导出** = Export, **可编辑 PPTX** = Editable PPTX, **另存 HTML** = Save HTML, **撤销** = Undo. This documentation language switch does not change the editor's interface language.
 
-Standard PPTX export supports text, images, basic shapes, straight arrows, single-segment cubic Bézier curves and groups. Native tables and data-linked charts are not integrated. HTML chart text/shape editing does not automatically rescale marks. [Local commands and limits](../ppt-design-system/references/workflow.md#在编辑页直接导出)
+Standard PPTX export supports text, images, basic shapes, straight arrows, single-segment cubic Bézier curves and groups. Native tables and data-linked charts are not integrated. HTML chart text/shape editing does not automatically rescale marks. [Local commands and limits](../ppt-design-system/references/workflow.en.md#direct-export-from-the-editor)
 
 ## Walkthrough: a ten-page return pilot
 

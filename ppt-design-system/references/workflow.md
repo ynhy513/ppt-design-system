@@ -1,5 +1,7 @@
 # 运行准备与参考证据采集
 
+[English](workflow.en.md) | **简体中文**
+
 在仓库根目录运行以下命令，或用实际的 Skill 安装路径代替 `ppt-design-system`。使用 Python 3.11 和独立虚拟环境。
 
 ```bash
