@@ -1,17 +1,28 @@
 # PPT-design-system 操作指南
 
-[返回 README](../README.md) · [本机安装与运行](../ppt-design-system/references/workflow.md)
+[English](usage.en.md) | **简体中文**
+
+[返回 README](../README.zh-CN.md) · [本机安装与运行](../ppt-design-system/references/workflow.md) · [死亡搁浅使用故事](examples/death-stranding.md)
 
 ## 按模式选入口
 
 | 你手头有什么 | 选哪个模式 | 这一步拿到什么 |
 | --- | --- | --- |
+| 只有风格描述、品牌或 IP 名称，没有具体参考 | [先选素材与方向](#只有风格描述时先选素材与方向) | 素材方式选择、同稿渲染的视觉候选和已选方向记录 |
 | 一份想借鉴的 PPTX、PDF 或截图 | [Extract · 提取设计](#extract--提取设计) | 素材清单、组件覆盖表、经审阅的设计包 ZIP |
 | 一份 `design.md` 或其他 Markdown 设计规范 | [Extract · 读取规范](#用-markdown-规范开始) | Agent 审阅后映射的设计包，附声明、延展和待确认项 |
 | 一个设计包和一份新文稿，想先看怎么排 | [Reuse · 选版与填槽](#reuse--选版与填槽) | 逐页分镜、匹配到的版式、需要调整的页面及原因 |
 | 一个设计包和确认稿，准备制作和交付 | [Make · 编辑与导出](#make--编辑与导出) | 本机编辑页、可编辑 PPTX、16:9 PDF，或可离线编辑的 HTML |
 
-第一次用，可把参考稿和文稿放进同一个工作目录，安装完整的 Skill 文件夹，然后在 Codex 里使用 `$ppt-design-system`。也可以让 Agent 直接读取仓库中的 [SKILL.md](../ppt-design-system/SKILL.md)。 [快速开始](../README.md#quick-start--快速开始)
+第一次用，可把参考稿和文稿放进同一个工作目录，安装完整的 Skill 文件夹，然后在 Codex 里使用 `$ppt-design-system`。也可以让 Agent 直接读取仓库中的 [SKILL.md](../ppt-design-system/SKILL.md)。 [快速开始](../README.zh-CN.md#快速开始)
+
+### 只有风格描述时，先选素材与方向
+
+> 用 `$ppt-design-system` 把这份文稿做成某品牌 / IP 风格。我没有具体模板，请先让我选择直接使用该 IP 图片还是采用相似风格素材，再用同样文案渲染 2–3 个有明显差异的方向；看过预览选定后再做整稿。也可以选 A 的整体排版、B 只用于数据页。
+
+先决定用什么图片，再决定怎么排。每个候选一般包含封面和一张代表内容页，同时附真实参考来源，区分原始参考与生成设计。有已选参考、设计包或明确的既有偏好时沿用，不重复提问。这个步骤由 Agent 执行，不是新增的自动找图或自动选型命令。[完整规则](../ppt-design-system/references/style-selection.md)
+
+例如「死亡搁浅风格」：先看真实官方环境图，再决定用原图还是相似风格独立素材。各候选用相同文案展示字体、构图、密度和图片处理的差异；不能只换颜色。用户可以选 A，也可以限定「A 的整体排版，B 只用于数据页」。选中后记录主次范围，再进入提取、补足与制稿。[故事与逐页说明](examples/death-stranding.md)
 
 ### Extract · 提取设计
 
