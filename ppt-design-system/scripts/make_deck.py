@@ -21,6 +21,7 @@ from check_inherited_layout import verify_inherited_layout
 from compile_story import compile_story
 from design_replay import check_plan, check_source, check_system, load, make_renderer, render, require, source_media, used_tokens
 from native_deck import write_pptx
+from check_style_selection import add_selection_arguments, production_preflight
 from package_design import MANIFEST, ZIP_ROOT, check_directory, check_zip
 
 
@@ -158,6 +159,8 @@ def storyboard_text(model, plan, trace):
 
 
 def make(args, stage, *, export_token=None):
+    # Check an incomplete declared style-only request before opening a pack or rendering.
+    selection_report = production_preflight(args)
     if args.pack.is_dir():
         pack = args.pack
         errors = check_directory(pack, None)
@@ -170,6 +173,9 @@ def make(args, stage, *, export_token=None):
     require(not errors, "Design pack rejected: " + " / ".join(errors))
     system, catalog, grammar = [load(pack / name) for name in
                                ("design-system.json", "element-catalog.json", "style-grammar.json")]
+    if selection_report is not None:
+        selection_report = production_preflight(args, source_sha256=system["source"]["sha256"])
+        save_json(stage / "style-selection-report.json", selection_report)
     manuscript = load(args.manuscript)
     plan, trace = compile_story(system, catalog, grammar, manuscript)
     save_json(stage / "compile-report.json", trace)
@@ -236,6 +242,7 @@ def make(args, stage, *, export_token=None):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
+    add_selection_arguments(parser)
     parser.add_argument("pack", type=Path, help="Reviewed design pack directory or ZIP")
     parser.add_argument("manuscript", type=Path, help="Confirmed semantic manuscript")
     parser.add_argument("--assets", type=Path, help="Root for replaceable content assets")

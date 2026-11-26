@@ -6,7 +6,7 @@
 
 **[操作指南](docs/usage.md)** · **[死亡搁浅使用故事](docs/examples/death-stranding.md)** · 按模式找入口，或跟着示例从参考稿做到可编辑 PPTX 和 PDF。
 
-只有风格描述或品牌 / IP 名称、没有具体参考时，Agent 会先确认原 IP 图片还是相似风格素材，再用同一份内容渲染少量不同方向供选择，选定后进入原有流程。已有参考或已选方向时直接沿用。支持主方向与限定页型的辅助方向组合。[素材与风格选择](ppt-design-system/references/style-selection.md)
+只有风格描述或品牌 / IP 名称、没有具体参考时，先搜集并审看视觉参考，即使最终用生成背景、或由 Agent 自行选方向也要做。再按需选择原 IP 图片或独立素材，用同稿渲染方向。熟悉风格、记得以前成功过，不构成批准沿用；用户已提供具体参考或存在适用的批准方向时保留原路径。[素材与风格选择](ppt-design-system/references/style-selection.md) · [制作前置检查与模型交接](ppt-design-system/references/style-preflight.md)
 
 ## 工作流程
 

@@ -121,6 +121,16 @@ def test_make_reuses_a_registered_photo_from_the_zip_without_content_assets(tmp_
     report = json.loads((stage / "make-report.json").read_text())
     assert report["stock_photos"] == {"photo.jpg": record["sha256"]}
 
+    # The same real Make/export path also carries a checked style-origin decision.
+    from test_style_selection import make_record
+    decision, _ = make_record(tmp_path / "research", fingerprint)
+    args.style_request = decision.parent / "request.txt"
+    args.style_selection = decision
+    assert make(args, stage)
+    decision_report = json.loads((stage / "style-selection-report.json").read_text())
+    assert decision_report["references"] == 1
+    assert Presentation(stage / "deck.pptx").slides[0].shapes[1].image.blob == file.read_bytes()
+
     Image.new("RGB", (20, 15), "blue").save(file)
     assert any("SHA-256 mismatch" in error for error in check_directory(pack, None))
     record["sha256"] = sha256(file.read_bytes()).hexdigest()

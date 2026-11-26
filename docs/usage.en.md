@@ -24,6 +24,8 @@ Choose the image approach before comparing visual directions. Each candidate nor
 
 For a Death Stranding-inspired request, inspect real official environmental references, then choose direct images or independent assets with similar visual qualities. Candidate previews use the same copy. A combination such as “A overall, B only for data pages” is recorded before extracting, extending and making the full deck. [Worked story](examples/death-stranding.en.md)
 
+Familiarity, past success and generated-background production do not waive research. Delegated choice changes who selects, not whether sources must be inspected. For this request origin, Make and the local editor take `--style-request original-request.txt --style-selection style-selection.json`; keep the record even after creating a fresh pack. Other-model calls must receive reviewed references or observations and the applicable constraints. [Preflight format, handoff and limits](../ppt-design-system/references/style-preflight.en.md)
+
 ## Extract a design pack
 
 Provide the reference and intended uses. Name any chapter color, layout feature or decorative asset that matters particularly.

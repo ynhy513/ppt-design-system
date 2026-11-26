@@ -12,7 +12,7 @@ This is a cross-tool preview for coding agents with local file and shell access.
 
 **Have a reference?** Extract a pack, match your manuscript in Reuse, then produce and edit the deck in Make. Keep the source pack separate from production extensions. Missing layouts appear in the match report.
 
-**Have only a style description or brand/IP name?** First choose direct IP imagery or independent similar-style assets where images are needed. Then compare 2–3 rendered visual directions using the same sample copy. Select a direction, or scope a secondary direction to specific pages, before making the full deck. Existing references and approved choices bypass this entry. [Selection rules](ppt-design-system/references/style-selection.en.md)
+**Have only a style description or brand/IP name?** Search for and inspect visual references first, even when the result will use generated backgrounds or the agent chooses the direction. Choose direct IP imagery or independent assets where needed, then compare same-copy rendered directions. Familiarity and remembered success do not establish approved reuse. A supplied concrete reference or an applicable user-approved direction keeps its existing path. [Selection rules](ppt-design-system/references/style-selection.en.md) · [Production preflight and model handoff](ppt-design-system/references/style-preflight.en.md)
 
 ![Workflow: Extract builds a design pack; Reuse matches new copy; Make delivers editable slides.](docs/images/workflow.en.svg)
 

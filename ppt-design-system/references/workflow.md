@@ -88,6 +88,8 @@ python ppt-design-system/scripts/make_deck.py design-pack.zip confirmed-manuscri
 
 可输入已校验的设计包目录或 ZIP。文稿沿用 Reuse 的语义结构。固定素材从包内读取，可换素材从 `--assets` 读取，已登记的随包照片可用 `pack:文件名` 填入可换图片槽。传入 `--source` 可再次核对原稿和固定素材。首次匹配缺口写入 `compile-report.json`，确认补足后重新执行。
 
+如果请求最初只有风格名或描述，Make 与 `serve_deck.py` 都传入 `--style-request original-request.txt --style-selection style-selection.json`。[参考前置检查](style-preflight.md)在制作前核对研究与选型证据，输出 `style-selection-report.json`。委托选型和使用生成背景都不豁免参考研究。已有具体参考或明确批准沿用时，保留原命令。
+
 复用参考设计时，制作和本地编辑命令均传入 `--inheritance-review inherited-layout.json`，见[复验清单](page-composition.md#检查沿用的标题与强调图层)。
 
 - `deck.html` 是可离线打开的演示和编辑入口。默认一页一屏，支持翻页及全屏。点击编辑，再点页面上的图层或从列表选择。拖动或用右下角控制点缩放，右侧可输入精确坐标、改槽位文字和替换图片。组件内文字可单独改，组件位置和大小按组处理。换图支持 6 MiB 以内的 PNG、JPEG 或 WebP。

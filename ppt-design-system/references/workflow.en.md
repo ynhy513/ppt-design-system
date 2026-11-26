@@ -88,6 +88,8 @@ python ppt-design-system/scripts/make_deck.py design-pack.zip confirmed-manuscri
 
 Input can be a validated directory or ZIP. The manuscript uses Reuse's semantic structure. Fixed assets come from the pack; replaceable assets come from `--assets`, or registered packed photos via `pack:filename`. `--source` rechecks the source and fixed assets. Initial matching gaps go into `compile-report.json`; complete them explicitly before rerunning.
 
+If the request began with only a style name/description, pass `--style-request original-request.txt --style-selection style-selection.json` to Make and `serve_deck.py`. This [reference preflight](style-preflight.en.md) checks research/selection evidence before production and writes `style-selection-report.json`. Delegated choice and generated backgrounds do not waive research. Concrete supplied references and explicitly approved reuse keep the existing commands.
+
 For reference-based reuse, pass `--inheritance-review inherited-layout.json` to production and local-editor commands. See the [review checklist](page-composition.en.md#check-inherited-titles-and-emphasis-layers).
 
 - `deck.html` is the offline presentation/editor. It starts with one slide per screen, navigation and full screen. Enable editing, then select a canvas layer or list entry. Drag/resize with the lower-right handle; enter exact geometry, slot text and replacement images in the sidebar. Component text edits independently; position/size changes apply to the group. Replacements support PNG, JPEG and WebP up to 6 MiB.

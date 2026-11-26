@@ -124,7 +124,9 @@ def serve(args):
 
 
 def main():
+    from check_style_selection import add_selection_arguments
     parser = argparse.ArgumentParser(description=__doc__)
+    add_selection_arguments(parser)
     parser.add_argument("pack", type=Path, help="Reviewed design pack directory or ZIP")
     parser.add_argument("manuscript", type=Path, help="Confirmed semantic manuscript")
     parser.add_argument("--assets", type=Path, help="Replaceable content assets")
