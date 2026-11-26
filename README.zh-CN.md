@@ -2,11 +2,15 @@
 
 [English](README.md) | **简体中文**
 
-把参考演示提炼成可复用的设计包，再用同一套设计做新稿。可以从 PPTX、PDF、截图或 Markdown 设计规范开始，交付可编辑 HTML、原生 PPTX 和 16:9 PDF。第一次使用，建议准备一份参考和一份短文稿。
+把参考 PPT、PDF、截图，或只是一个风格方向，做成可复用的设计包，再用已确认的文稿生成可编辑的 HTML 和 PPTX。
 
-**[操作指南](docs/usage.md)** · **[死亡搁浅使用故事](docs/examples/death-stranding.md)** · 按模式找入口，或跟着示例从参考稿做到可编辑 PPTX 和 PDF。
+![死亡搁浅风格封面：原创雾谷景观、右侧行者与左侧英文标题。](docs/images/examples/death-stranding/cover.jpg)
 
-只有风格描述或品牌 / IP 名称、没有具体参考时，先搜集并审看视觉参考，即使最终用生成背景、或由 Agent 自行选方向也要做。再按需选择原 IP 图片或独立素材，用同稿渲染方向。熟悉风格、记得以前成功过，不构成批准沿用；用户已提供具体参考或存在适用的批准方向时保留原路径。[素材与风格选择](ppt-design-system/references/style-selection.md) · [制作前置检查与模型交接](ppt-design-system/references/style-preflight.md)
+![同一份交接演示的八页总览。](docs/images/examples/death-stranding/overview.jpg)
+
+这是一份死亡搁浅风格的八页交接演示，从文稿生成，而不是套现成模板。[阅读这个案例](docs/examples/death-stranding.md) · [操作指南](docs/usage.md) · [Skill 说明](ppt-design-system/SKILL.md)
+
+面向有本地文件和终端权限的编程助手。助手负责审阅参考和设计选择，仓库里的脚本负责扫描、编译、渲染和导出支持的对象。
 
 ## 工作流程
 
