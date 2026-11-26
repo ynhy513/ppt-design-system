@@ -2,11 +2,15 @@
 
 **English** | [简体中文](README.zh-CN.md)
 
-Turn visual references into reusable design packs, then make editable presentations from confirmed copy. Start with a PPTX, PDF, screenshot, Markdown design specification, or simply a style direction.
+Turn a reference deck, PDF, screenshot, or even just a style direction into a reusable design pack, then generate editable HTML and PowerPoint from your confirmed copy.
 
-This is a cross-tool preview for coding agents with local file and shell access. The agent reviews references and design choices; the included scripts scan, compile, render and export supported objects.
+![Death Stranding-inspired cover: a mist-valley landscape, a walker at right, and an English title at left.](docs/images/examples/death-stranding/cover.jpg)
 
-**[Usage guide](docs/usage.en.md)** · **[Death Stranding-inspired story](docs/examples/death-stranding.en.md)** · [Skill instructions](ppt-design-system/SKILL.md)
+![Eight-page overview of the same handover deck.](docs/images/examples/death-stranding/overview.jpg)
+
+An eight-page handover deck in a Death Stranding-inspired direction, built from copy rather than a ready-made template. [Read the story](docs/examples/death-stranding.en.md) · [Usage guide](docs/usage.en.md) · [Skill instructions](ppt-design-system/SKILL.md)
+
+This is a skill for coding agents with local file and shell access. The agent reviews references and design choices; the included scripts scan, compile, render, and export supported objects.
 
 ## How it works
 
